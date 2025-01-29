@@ -1,0 +1,98 @@
+{
+  "$schema": "https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/schema.json",
+  "blocks": [
+    {
+      "type": "prompt",
+      "alignment": "left",
+      "segments": [
+        {
+          "leading_diamond": "\u256d\u2500\ue0b6",
+          "trailing_diamond": "\ue0b0",
+          "template": "{{ if .WSL }}WSL at {{ end }}\uf31b {{ .UserName }} ",
+          "foreground": "#000000",
+          "background": "#ffffff",
+          "type": "os",
+          "style": "diamond"
+        },
+        {
+          "properties": {
+              "mapped_locations": {
+                  "~": "\udb80\udede"
+              }
+          },
+          "template": " {{ .Path | replace \"/\" \" > \" }} ",
+          "foreground": "#000000",
+          "powerline_symbol": "\ue0b0",
+          "background": "#ffffff",
+          "type": "path",
+          "style": "powerline"
+        },
+        {
+          "template": " \ued0d {{ .Full }}",
+          "foreground": "#ffffff",
+          "powerline_symbol": "\ue0b4",
+          "background": "#6CA35E",
+          "type": "node",
+          "style": "powerline"
+        },
+        {
+          "template": " \ue634 {{ .Full }}",
+          "foreground": "#ffffff",
+          "powerline_symbol": "\ue0b4",
+          "background": "#7F52FF",
+          "type": "kotlin",
+          "style": "powerline"
+        }
+      ],
+      "newline": true
+    },
+    {
+      "type": "prompt",
+      "alignment": "right",
+      "segments": [
+        {
+          "properties": {
+            "always_enabled": true
+          },
+          "leading_diamond": "\u2591\u2592\u2593",
+          "template": " {{ if gt .Code 0 }}\uf00d{{ else }}\uf42e{{ end }} ",
+          "foreground": "#000000",
+          "type": "status",
+          "style": "diamond",
+          "background_templates": [
+            "{{if gt .Code 0}}#d12323{{end}}",
+            "{{if eq .Code 0}}#23d18b{{end}}"
+          ]
+        },
+        {
+          "properties": {
+            "threshold": 10
+          },
+          "template": "{{ .FormattedMs }} ",
+          "foreground": "#000000",
+          "type": "executiontime",
+          "style": "plain",
+          "background_templates": [
+            "{{if gt .Code 0}}#d12323{{end}}",
+            "{{if eq .Code 0}}#23d18b{{end}}"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "prompt",
+      "alignment": "left",
+      "segments": [
+        {
+          "template": "\u2570\u2500 ",
+          "foreground": "#ffffff",
+          "type": "text",
+          "style": "plain"
+        }
+      ],
+      "newline": true
+    }
+  ],
+  "version": 3
+}
+
