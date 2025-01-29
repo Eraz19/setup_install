@@ -109,7 +109,7 @@ function InstallSteam()
 
     # Run first update in the background
     nohup steam steam://open/install &> /dev/null;
-    WaitEndUpdateProcess;
+    # WaitEndUpdateProcess;
 };
 
 function InstallVsCode()
