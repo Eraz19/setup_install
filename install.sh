@@ -71,8 +71,12 @@ function InstallSteam()
 {
     function WaitEndUpdateProcess()
     {
+        echo "Enter WaitEndUpdateProcess";
+
         while true;
         do
+            echo "In loop";
+
             if
                 sudo lsof /var/lib/dpkg/lock >/dev/null 2>&1 || \
                 sudo lsof /var/lib/dpkg/lock-frontend >/dev/null 2>&1 || \
