@@ -80,15 +80,18 @@ function InstallSteam()
                 sudo lsof /var/cache/apt/archives/lock >/dev/null 2>&1;
             then
                 sleep 5  ;
+                echo "apt locked"
                 continue ;
             fi
 
+            echo "apt unlocked"
+
             if pgrep -x "steam" > /dev/null;
             then
+                echo "kill steam"
                 pkill -f "steam";
                 
-                sleep 2  ;
-                continue ;
+                break;
             fi
 
             break;
