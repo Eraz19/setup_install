@@ -199,7 +199,7 @@ function InstallCodingEcosystem()
         sudo git config --global user.name $GIT_USERNAME;
         sudo git config --global user.email $GIT_EMAIL;
 
-        sudo ssh-keygen -t ed25519 -C $GIT_EMAIL;
+        sudo ssh-keygen -t ed25519 -C "$GIT_EMAIL" -f "$HOME/.ssh/$GIT_SSl_KEY_FILE" -N "";
         sudo eval "$(ssh-agent -s)";
         sudo ssh-add ~/.ssh/$GIT_SSl_KEY_FILE;
     };
