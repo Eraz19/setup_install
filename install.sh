@@ -3,6 +3,16 @@
 
 source "$(dirname "$0")/font/install.sh"
 
+function IncreaseSudoEffectiveness()
+{
+    echo "Defaults timestamp_timeout=60" | sudo tee -a /etc/sudoers.d/custom_sudo_timeout;
+};
+
+function RemoveIncreaseSudoEffectiveness()
+{
+    sudo rm /etc/sudoers.d/custom_sudo_timeout;
+};
+
 function WaitForAptLock()
 {
     while
@@ -79,6 +89,7 @@ function InstallSteam()
     # Run first update in the background
     nohup steam steam://open/install &> /dev/null;
     WaitForAptLock;
+    killall steam;
 };
 
 function InstallVsCode()
@@ -135,20 +146,19 @@ function InstallVsCode()
     {
         function SetKeyboardShortcut()
         {
-            sudo echo '
-                [
-                    {
-                        "key": "ctrl+alt+m",
-                        "command": "editor.action.transformToUppercase",
-                        "when": "editorTextFocus"
-                    },
-                    {
-                        "key": "ctrl+alt+l",
-                        "command": "editor.action.transformToLowercase",
-                        "when": "editorTextFocus"
-                    }
-                ]
-            ' | sed 's/^[ \t]*//' > $1;
+            sudo printf '%s\n' '
+            [
+                {
+                    "key": "ctrl+alt+m",
+                    "command": "editor.action.transformToUppercase",
+                    "when": "editorTextFocus"
+                },
+                {
+                    "key": "ctrl+alt+l",
+                    "command": "editor.action.transformToLowercase",
+                    "when": "editorTextFocus"
+                }
+            ]' | sudo tee "$1" > /dev/null;
         };
 
         local keyboard_shortcut_folder="$HOME/.config/Code/User";
@@ -380,10 +390,14 @@ sudo -v;
 
 if CheckEnvVariables;
 then
+    IncreaseSudoEffectiveness;
+
     InstallGnomeUIUtilities  ; # DONE
     InstallSteam             ; # DONE
     InstallVsCode            ;
     #InstallVirtualMachine    ;
     #InstallCodingEcosystem   ;
     #InstallTerminalUtilities ;
+
+    RemoveIncreaseSudoEffectiveness;
 fi
