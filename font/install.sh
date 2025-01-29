@@ -8,7 +8,7 @@ function InstallFontNerd()
 {
     echo "Installing Nerd Fonts...";
     
-    for zip_file in "$PROJECT_FONT_FOLDER/*.zip";
+    for zip_file in "$PROJECT_ROOT_FOLDER/font/*.zip";
     do
         if [ -f "$zip_file" ];
         then
@@ -26,7 +26,7 @@ function InstallFontNerd()
 
             rm -rf "$temp_dir";
         else
-            echo "No .zip files found in $PROJECT_FONT_FOLDER";
+            echo "No .zip files found in $PROJECT_ROOT_FOLDER/font";
         fi
     done
 

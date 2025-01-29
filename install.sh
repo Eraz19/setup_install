@@ -146,15 +146,15 @@ function InstallVsCode()
 
 function InstallVirtualMachine()
 {
-    local create_vm_command="qemu-img create -f qcow2 $PROJECT_VIRTUAL_MACHINE_FOLDER/$VIRTUAL_MACHINE_DISK_FILE 40G";
+    local create_vm_command="qemu-img create -f qcow2 $PROJECT_ROOT_FOLDER/virtual_machine/$VIRTUAL_MACHINE_DISK_FILE 40G";
     local install_vm_disk_command="
         qemu-system-x86_64 \
             -enable-kvm \
             -m 4096 \
             -cpu host \
             -smp 2 \
-            -cdrom $PROJECT_VIRTUAL_MACHINE_FOLDER/$VIRTUAL_MACHINE_ISO_FILE \
-            -drive file=$PROJECT_VIRTUAL_MACHINE_FOLDER/$VIRTUAL_MACHINE_DISK_FILE,format=qcow2 \
+            -cdrom $$PROJECT_ROOT_FOLDER/virtual_machine//$VIRTUAL_MACHINE_ISO_FILE \
+            -drive file=$$PROJECT_ROOT_FOLDER/virtual_machine//$VIRTUAL_MACHINE_DISK_FILE,format=qcow2 \
             -boot d \
             -vga virtio \
             -display sdl
@@ -165,7 +165,7 @@ function InstallVirtualMachine()
             -m 4096 \
             -cpu host \
             -smp 2 \
-            -drive file="$PWD/virtual_machine/disk.qcow2",format=qcow2,snapshot=on \
+            -drive file='"$PROJECT_ROOT_FOLDER"/virtual_machine/disk.qcow2',format=qcow2,snapshot=on \
             -vga virtio \
             -display sdl \
             -spice port=5900,disable-ticketing=on \
@@ -322,7 +322,7 @@ function InstallTerminalUtilities()
         wget https://github.com/JanDeDobbeleer/oh-my-posh/releases/latest/download/posh-linux-amd64 -O /usr/local/bin/oh-my-posh;
         chmod +x /usr/local/bin/oh-my-posh;
     
-        SetZshrc "eval "$(oh-my-posh init zsh --config $PROJECT_OH_MY_POSH_FOLDER/custom.omp.json)"";
+        SetZshrc "eval "$(oh-my-posh init zsh --config $PROJECT_ROOT_FOLDER/oh_my_posh/custom.omp.json)"";
     
         InstallFontNerd ;
         SetFont         ;
