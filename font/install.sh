@@ -1,7 +1,8 @@
 #!/bin/bash
 
 
-source ../.env
+source "$(dirname "$0")/.env"
+
 
 function InstallFontNerd()
 {
