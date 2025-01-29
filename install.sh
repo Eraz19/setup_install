@@ -69,38 +69,34 @@ function InstallGnomeUIUtilities()
 
 function InstallSteam()
 {
-    function WaitEndUpdateProcess()
+    function WaitForSteamUpdate()
     {
-        echo "Enter WaitEndUpdateProcess";
-
-        while true;
-        do
-            echo "In loop";
-
-            if
-                sudo lsof /var/lib/dpkg/lock >/dev/null 2>&1 || \
-                sudo lsof /var/lib/dpkg/lock-frontend >/dev/null 2>&1 || \
-                sudo lsof /var/lib/apt/lists/lock >/dev/null 2>&1 || \
-                sudo lsof /var/cache/apt/archives/lock >/dev/null 2>&1;
-            then
-                sleep 5  ;
-                echo "apt locked"
-                continue ;
-            fi
-
-            echo "apt unlocked"
-
-            if pgrep -x "steam" > /dev/null;
-            then
-                echo "kill steam"
-                pkill -f "steam";
-                
-                break;
-            fi
-
-            break;
+        echo "Waiting for Steam to finish updating..."
+        
+        while pgrep -x "steam" > /dev/null; do
+            sleep 5
         done
-    };
+        
+        echo "Steam update finished."
+    }
+
+    function CloseSteamLoginWindow()
+    {
+        echo "Checking for Steam login window..."
+
+        while true; do
+            # Detect Steam login window using xdotool
+            WIN_ID=$(xdotool search --name "Steam" 2>/dev/null)
+
+            if [[ ! -z "$WIN_ID" ]]; then
+                echo "Steam login window detected. Closing it..."
+                xdotool windowkill "$WIN_ID"
+                break
+            fi
+
+            sleep 5
+        done
+    }
 
     echo "Installing Steam...";
     
@@ -108,8 +104,14 @@ function InstallSteam()
     sudo apt install -y steam;
 
     # Run first update in the background
-    nohup steam steam://open/install &> /dev/null;
-    # WaitEndUpdateProcess;
+    # Run first update in the background
+    nohup steam steam://open/install &> /dev/null &
+
+    # Wait for Steam update to complete
+    WaitForSteamUpdate
+
+    # Close Steam login window automatically
+    CloseSteamLoginWindow
 };
 
 function InstallVsCode()
@@ -408,16 +410,16 @@ function InstallTerminalUtilities()
 
 sudo -v;
 
-if CheckEnvVariables;
-then
+#if CheckEnvVariables;
+#then
     IncreaseSudoEffectiveness;
 
-    InstallGnomeUIUtilities  ; # DONE
+    #InstallGnomeUIUtilities  ; # DONE
     InstallSteam             ; # DONE
-    InstallVsCode            ; # DONE
+    #InstallVsCode            ; # DONE
     #InstallVirtualMachine    ;
     #InstallCodingEcosystem   ;
     #InstallTerminalUtilities ;
 
     RemoveIncreaseSudoEffectiveness;
-fi
+#fi
