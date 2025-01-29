@@ -12,17 +12,19 @@ function CheckEnvVariables()
     then
         echo "Error: $env_file file not found.";
         
-        return (1);
+        return 1;
     fi
 
-    source "$(dirname "$0")/$env_file"
+    source "$(dirname "$0")/$env_file";
 
     local required_vars=(
-        PROJECT_ROOT
-        VM_ISO_FILE
+        PROJECT_ROOT_FOLDER
+        PROJECT_SYSTEM_FONT_FOLDER
+        VIRTUAL_MACHINE_DISK_FILE
+        VIRTUAL_MACHINE_ISO_FILE
         GIT_USERNAME
         GIT_EMAIL
-        FONT_DIR
+        GIT_SSl_KEY_FILE
     );
 
     for var in "${required_vars[@]}";
@@ -31,11 +33,11 @@ function CheckEnvVariables()
         then
             echo "Error: $var is not set or is empty in $env_file.";
             
-            return (1);
+            return 1;
         fi
     done
 
-    return (0);
+    return 0;
 };
 
 function SetConfigFile()
@@ -153,8 +155,8 @@ function InstallVirtualMachine()
             -m 4096 \
             -cpu host \
             -smp 2 \
-            -cdrom $$PROJECT_ROOT_FOLDER/virtual_machine//$VIRTUAL_MACHINE_ISO_FILE \
-            -drive file=$$PROJECT_ROOT_FOLDER/virtual_machine//$VIRTUAL_MACHINE_DISK_FILE,format=qcow2 \
+            -cdrom $PROJECT_ROOT_FOLDER/virtual_machine//$VIRTUAL_MACHINE_ISO_FILE \
+            -drive file=$PROJECT_ROOT_FOLDER/virtual_machine//$VIRTUAL_MACHINE_DISK_FILE,format=qcow2 \
             -boot d \
             -vga virtio \
             -display sdl
@@ -165,7 +167,7 @@ function InstallVirtualMachine()
             -m 4096 \
             -cpu host \
             -smp 2 \
-            -drive file='"$PROJECT_ROOT_FOLDER"/virtual_machine/disk.qcow2',format=qcow2,snapshot=on \
+            -drive file=$PROJECT_ROOT_FOLDER/virtual_machine/disk.qcow2,format=qcow2,snapshot=on \
             -vga virtio \
             -display sdl \
             -spice port=5900,disable-ticketing=on \
@@ -178,9 +180,9 @@ function InstallVirtualMachine()
     
     apt install -y qemu qemu-kvm libvirt-daemon-system libvirt-clients bridge-utils virt-manager;
     
-    SetConfigFile "alias vm_disk_create='$create_vm_command'" "$PROJECT_ROOT/.zshrc";
-    SetConfigFile "alias vm_install='$create_vm_command'" "$PROJECT_ROOT/.zshrc";
-    SetConfigFile "alias vm_run='$vm_run_command'" "$PROJECT_ROOT/.zshrc";
+    SetConfigFile "alias vm_disk_create=$create_vm_command" "$PROJECT_ROOT/.zshrc";
+    SetConfigFile "alias vm_install=$create_vm_command" "$PROJECT_ROOT/.zshrc";
+    SetConfigFile "alias vm_run=$vm_run_command" "$PROJECT_ROOT/.zshrc";
 };
 
 function InstallCodingEcosystem()
@@ -197,7 +199,7 @@ function InstallCodingEcosystem()
         ssh-keygen -t ed25519 -C $GIT_EMAIL;
         eval "$(ssh-agent -s)";
         ssh-add ~/.ssh/$GIT_SSl_KEY_FILE;
-    }:
+    };
 
     function InstallNvm()
     {
@@ -312,7 +314,7 @@ function InstallTerminalUtilities()
         mv yazi-temp/*/yazi /usr/local/bin;
         rm -rf yazi-temp yazi.zip;
 
-        SetZshrc "alias nav='yazi'";
+        SetZshrc "alias nav=yazi";
     };
 
     function InstallOhMyPosh()
@@ -322,7 +324,7 @@ function InstallTerminalUtilities()
         wget https://github.com/JanDeDobbeleer/oh-my-posh/releases/latest/download/posh-linux-amd64 -O /usr/local/bin/oh-my-posh;
         chmod +x /usr/local/bin/oh-my-posh;
     
-        SetZshrc "eval "$(oh-my-posh init zsh --config $PROJECT_ROOT_FOLDER/oh_my_posh/custom.omp.json)"";
+        SetZshrc "eval '$(oh-my-posh init zsh --config $PROJECT_ROOT_FOLDER/oh_my_posh/custom.omp.json)'";
     
         InstallFontNerd ;
         SetFont         ;
