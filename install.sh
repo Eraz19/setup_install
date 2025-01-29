@@ -42,7 +42,7 @@ function CheckEnvVariables()
 
 function SetConfigFile()
 {
-    echo "\n$1" >> $2;
+    sudo echo "\n$1" >> $2;
 };
 
 
@@ -52,7 +52,7 @@ function InstallGnomeUIUtilities()
     {
         echo "Installing GNOME Tweaks...";
 
-        apt install -y gnome-tweaks;
+        sudo apt install -y gnome-tweaks;
     };
 
     InstallTweaks;
@@ -62,8 +62,8 @@ function InstallSteam()
 {
     echo "Installing Steam...";
     
-    add-apt-repository multiverse -y;
-    apt install -y steam;
+    sudo add-apt-repository multiverse -y;
+    sudo apt install -y steam;
 };
 
 function InstallVsCode()
@@ -72,10 +72,10 @@ function InstallVsCode()
     {
         echo "Installing VsCode...";
 
-        wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor >packages.microsoft.gpg;
-        install -o root -g root -m 644 packages.microsoft.gpg /usr/share/keyrings/;
-        sh -c 'echo "deb [arch=amd64 signed-by=/usr/share/keyrings/packages.microsoft.gpg] https://packages.microsoft.com/repos/code stable main" > /etc/apt/sources.list.d/vscode.list';
-        apt install -y code;
+        sudo wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor >packages.microsoft.gpg;
+        sudo install -o root -g root -m 644 packages.microsoft.gpg /usr/share/keyrings/;
+        sudo sh -c 'echo "deb [arch=amd64 signed-by=/usr/share/keyrings/packages.microsoft.gpg] https://packages.microsoft.com/repos/code stable main" > /etc/apt/sources.list.d/vscode.list';
+        sudo apt install -y code;
     };
 
     function InstallExtensions()
@@ -112,7 +112,7 @@ function InstallVsCode()
 
         for ext in "${extensions[@]}";
         do
-            code --install-extension $ext;
+            sudo code --install-extension $ext;
         done
     };
 
@@ -137,7 +137,7 @@ function InstallVsCode()
 
         echo "Setting VsCode keyboard shortcuts...";
 
-        mkdir -p $keyboard_shortcut_folder;
+        sudo mkdir -p $keyboard_shortcut_folder;
         SetConfigFile $keyboard_shortcuts "$keyboard_shortcut_folder/$keyboard_shortcut_file";
     };
 
@@ -178,7 +178,7 @@ function InstallVirtualMachine()
 
     echo "Installing VirtualMachine...";
     
-    apt install -y qemu qemu-kvm libvirt-daemon-system libvirt-clients bridge-utils virt-manager;
+    sudo apt install -y qemu qemu-kvm libvirt-daemon-system libvirt-clients bridge-utils virt-manager;
     
     SetConfigFile "alias vm_disk_create=$create_vm_command" "$PROJECT_ROOT/.zshrc";
     SetConfigFile "alias vm_install=$create_vm_command" "$PROJECT_ROOT/.zshrc";
@@ -191,14 +191,14 @@ function InstallCodingEcosystem()
     {
         echo "Installing Git...";
 
-        apt install -y git;
+        sudo apt install -y git;
         
-        git config --global user.name $GIT_USERNAME;
-        git config --global user.email $GIT_EMAIL;
+        sudo git config --global user.name $GIT_USERNAME;
+        sudo git config --global user.email $GIT_EMAIL;
 
-        ssh-keygen -t ed25519 -C $GIT_EMAIL;
-        eval "$(ssh-agent -s)";
-        ssh-add ~/.ssh/$GIT_SSl_KEY_FILE;
+        sudo ssh-keygen -t ed25519 -C $GIT_EMAIL;
+        sudo eval "$(ssh-agent -s)";
+        sudo ssh-add ~/.ssh/$GIT_SSl_KEY_FILE;
     };
 
     function InstallNvm()
@@ -211,8 +211,8 @@ function InstallCodingEcosystem()
 
         echo "Installing Nvm toolchain (including nodeJS and npm)..."
         
-        curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash;
-        nvm install --lts;
+        sudo curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash;
+        sudo nvm install --lts;
 
         SetConfigFile $nvm_environment_variables "$PROJECT_ROOT/.zshrc";
     };
@@ -228,7 +228,7 @@ function InstallCodingEcosystem()
 
             echo "Installing Jvm...";
 
-            apt install -y openjdk-17-jdk;
+            sudo apt install -y openjdk-17-jdk;
             SetConfigFile $jvm_environment_variables "$PROJECT_ROOT/.zshrc";
         };
 
@@ -242,9 +242,9 @@ function InstallCodingEcosystem()
 
             echo "Installing Sdk...";
 
-            curl -s "https://get.sdkman.io" | bash;
-            sdk install kotlin 1.8.20;
-            sdk install gradle 8.12;
+            sudo curl -s "https://get.sdkman.io" | bash;
+            sudo sdk install kotlin 1.8.20;
+            sudo sdk install gradle 8.12;
 
             SetConfigFile $sdk_environment_variables "$PROJECT_ROOT/.zshrc";
         };
@@ -266,65 +266,65 @@ function InstallTerminalUtilities()
     {
         echo "Installing Zsh...";
 
-        apt install -y zsh;
-        ln -s $PROJECT_ROOT/.zshrc $HOME/.zshrc;
+        sudo apt install -y zsh;
+        sudo ln -s $PROJECT_ROOT/.zshrc $HOME/.zshrc;
     };
     
     function InstallFzf()
     {
         echo "Installing Fzf...";
 
-        apt install -y fzf;
+        sudo apt install -y fzf;
     };
     
     function InstallTheFuck()
     {
         echo "Installing TheFuck...";
         
-        apt install -y thefuck;
+        sudo apt install -y thefuck;
     };
     
     function InstallTree()
     {
         echo "Installing Tree...";
 
-        apt install -y tree;
+        sudo apt install -y tree;
     };
     
     function InstallBTop()
     {
         echo "Installing BTop...";
 
-        apt install -y btop;
+        sudo apt install -y btop;
     };
 
     function InstallNeofetch()
     {
         echo "Installing Neofetch...";
 
-        apt install -y neofetch;
+        sudo apt install -y neofetch;
     };
 
     function InstallYazi()
     {
         echo "Installing Yazi...";
 
-        wget -qO yazi.zip https://github.com/sxyazi/yazi/releases/latest/download/yazi-x86_64-unknown-linux-gnu.zip;
-        unzip -q yazi.zip -d yazi-temp;
-        mv yazi-temp/*/yazi /usr/local/bin;
-        rm -rf yazi-temp yazi.zip;
+        sudo wget -qO yazi.zip https://github.com/sxyazi/yazi/releases/latest/download/yazi-x86_64-unknown-linux-gnu.zip;
+        sudo unzip -q yazi.zip -d yazi-temp;
+        sudo mv yazi-temp/*/yazi /usr/local/bin;
+        sudo rm -rf yazi-temp yazi.zip;
 
-        SetZshrc "alias nav=yazi";
+        SetConfigFile "alias nav=yazi" "$PROJECT_ROOT/.zshrc";
     };
 
     function InstallOhMyPosh()
     {
         echo "Installing Oh-My-Posh...";
         
-        wget https://github.com/JanDeDobbeleer/oh-my-posh/releases/latest/download/posh-linux-amd64 -O /usr/local/bin/oh-my-posh;
-        chmod +x /usr/local/bin/oh-my-posh;
+        sudo wget https://github.com/JanDeDobbeleer/oh-my-posh/releases/latest/download/posh-linux-amd64 -O /usr/local/bin/oh-my-posh;
+        sudo chmod +x /usr/local/bin/oh-my-posh;
     
-        SetZshrc "eval '$(oh-my-posh init zsh --config $PROJECT_ROOT_FOLDER/oh_my_posh/custom.omp.json)'";
+        SetConfigFile "eval '$(oh-my-posh init zsh --config $PROJECT_ROOT_FOLDER/oh_my_posh/custom.omp.json)'" "$PROJECT_ROOT/.zshrc";
     
         InstallFontNerd ;
         SetFont         ;
@@ -334,15 +334,15 @@ function InstallTerminalUtilities()
     {
         function InstallPlugins()
         {
-            git clone https://github.com/zsh-users/zsh-autosuggestions.git $ZSH_CUSTOM/plugins/zsh-autosuggestions;
-            git clone https://github.com/zsh-users/zsh-syntax-highlighting.git $ZSH_CUSTOM/plugins/zsh-syntax-highlighting;
+            sudo git clone https://github.com/zsh-users/zsh-autosuggestions.git $ZSH_CUSTOM/plugins/zsh-autosuggestions;
+            sudo git clone https://github.com/zsh-users/zsh-syntax-highlighting.git $ZSH_CUSTOM/plugins/zsh-syntax-highlighting;
 
-            SetZshrc "plugins=(git zsh-autosuggestions zsh-syntax-highlighting)";
+            SetConfigFile "plugins=(git zsh-autosuggestions zsh-syntax-highlighting)" "$PROJECT_ROOT/.zshrc";
         };
 
         echo "Installing Oh-My-Zsh...";
 
-        sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)";
+        sudo sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)";
         InstallPlugins;
     };
 
