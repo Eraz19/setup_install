@@ -99,30 +99,30 @@ function InstallVsCode()
 
         extensions=(
             ms-vscode.cpptools
-            ms-vscode.cpptools-pack
+            ms-vscode.cpptools-extension-pack # no
             ms-vscode.cpptools-themes
             twxs.cmake
             ms-vscode.cmake-tools
             formulahendry.code-runner
-            ms-vscode-devcontainers
+            # ms-vscode-devcontainers
             ms-azuretools.vscode-docker
-            ms-vscode.github
-            ms-vscode.gradle
+            GitHub.vscode-pull-request-github # no
+            # ms-vscode.gradle
             fabiospampinato.vscode-highlight
             Ionic.ionic
             ms-toolsai.jupyter
             ms-toolsai.jupyter-keymap
             fwcd.kotlin
             mathiasfrohlich.kotlin
-            yantao.vscode-markdown
+            # yantao.vscode-markdown
             pkief.material-icon-theme
             ms-python.vscode-pylance
             ms-python.python
-            ms-vscode.remote-ssh
-            ms-vscode.remote-ssh-edit
+            # ms-vscode.remote-ssh
+            # ms-vscode.remote-ssh-edit
             emeraldwalk.runonsave
             gruntfuggly.todo-tree
-            PolyMeitex.wgsl
+            # PolyMeitex.wgsl
         );
 
         for ext in "${extensions[@]}";
@@ -135,7 +135,7 @@ function InstallVsCode()
     {
         function SetKeyboardShortcut()
         {
-            sudo echo "
+            sudo echo '
                 [
                     {
                         "key": "ctrl+alt+m",
@@ -148,7 +148,7 @@ function InstallVsCode()
                         "when": "editorTextFocus"
                     }
                 ]
-            " > $1;
+            ' | sed 's/^[ \t]*//' > $1;
         };
 
         local keyboard_shortcut_folder="$HOME/.config/Code/User";
