@@ -69,14 +69,15 @@ function InstallGnomeUIUtilities()
 
 function InstallSteam()
 {
-    function WaitForEndUpdateProcesse()
+    function WaitEndUpdateProcess()
     {
         while true;
         do
-            if sudo lsof /var/lib/dpkg/lock >/dev/null 2>&1 || \
-            sudo lsof /var/lib/dpkg/lock-frontend >/dev/null 2>&1 || \
-            sudo lsof /var/lib/apt/lists/lock >/dev/null 2>&1 || \
-            sudo lsof /var/cache/apt/archives/lock >/dev/null 2>&1;
+            if
+                sudo lsof /var/lib/dpkg/lock >/dev/null 2>&1 || \
+                sudo lsof /var/lib/dpkg/lock-frontend >/dev/null 2>&1 || \
+                sudo lsof /var/lib/apt/lists/lock >/dev/null 2>&1 || \
+                sudo lsof /var/cache/apt/archives/lock >/dev/null 2>&1;
             then
                 sleep 5  ;
                 continue ;
@@ -84,7 +85,9 @@ function InstallSteam()
 
             if pgrep -x "steam" > /dev/null;
             then
-                sleep 5  ;
+                pkill -f "steam";
+                
+                sleep 2  ;
                 continue ;
             fi
 
@@ -99,8 +102,7 @@ function InstallSteam()
 
     # Run first update in the background
     nohup steam steam://open/install &> /dev/null;
-    WaitForEndUpdateProcesse;
-    killall steam;
+    WaitEndUpdateProcess;
 };
 
 function InstallVsCode()
