@@ -165,12 +165,12 @@ function InstallVirtualMachine()
             -m 4096 \
             -cpu host \
             -smp 2 \
-            -drive file=$PROJECT_VIRTUAL_MACHINE_FOLDER/$VIRTUAL_MACHINE_DISK_FILE,format=qcow2,snapshot=on \
+            -drive file="$PWD/virtual_machine/disk.qcow2",format=qcow2,snapshot=on \
             -vga virtio \
             -display sdl \
             -spice port=5900,disable-ticketing=on \
             -device virtio-serial \
-            -chardev spicevmc,id=spicechannel0,name=main \
+            -chardev spicevmc,id=spicechannel0,name=vdagent \
             -device virtserialport,chardev=spicechannel0,name=com.redhat.spice.0
     ";
 
