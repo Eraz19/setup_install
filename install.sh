@@ -5,8 +5,6 @@ source "$(dirname "$0")/font/install.sh"
 
 function WaitForAptLock()
 {
-    echo "Waiting for apt availability";
-
     while
         sudo lsof /var/lib/dpkg/lock >/dev/null 2>&1 || \
         sudo lsof /var/lib/dpkg/lock-frontend >/dev/null 2>&1 || \
@@ -135,27 +133,31 @@ function InstallVsCode()
 
     function SettingKeyboardShortcuts()
     {
+        function SetKeyboardShortcut()
+        {
+            sudo echo "
+                [
+                    {
+                        "key": "ctrl+alt+m",
+                        "command": "editor.action.transformToUppercase",
+                        "when": "editorTextFocus"
+                    },
+                    {
+                        "key": "ctrl+alt+l",
+                        "command": "editor.action.transformToLowercase",
+                        "when": "editorTextFocus"
+                    }
+                ]
+            " > $1;
+        };
+
         local keyboard_shortcut_folder="$HOME/.config/Code/User";
         local keyboard_shortcut_file='keybindings.json';
-        local keyboard_shortcuts='
-            [
-                {
-                    "key": "ctrl+alt+u",
-                    "command": "editor.action.transformToUppercase",
-                    "when": "editorTextFocus"
-                },
-                {
-                    "key": "ctrl+alt+l",
-                    "command": "editor.action.transformToLowercase",
-                    "when": "editorTextFocus"
-                }
-            ]
-        ';
 
         echo "Setting VsCode keyboard shortcuts...";
 
         sudo mkdir -p $keyboard_shortcut_folder;
-        SetConfigFile $keyboard_shortcuts "$keyboard_shortcut_folder/$keyboard_shortcut_file";
+        SetKeyboardShortcut "$keyboard_shortcut_folder/$keyboard_shortcut_file";
     };
 
     InstallSoftware          ;
@@ -381,7 +383,7 @@ then
     InstallGnomeUIUtilities  ; # DONE
     InstallSteam             ; # DONE
     InstallVsCode            ;
-    InstallVirtualMachine    ;
-    InstallCodingEcosystem   ;
-    InstallTerminalUtilities ;
+    #InstallVirtualMachine    ;
+    #InstallCodingEcosystem   ;
+    #InstallTerminalUtilities ;
 fi
