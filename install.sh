@@ -64,6 +64,9 @@ function InstallSteam()
     
     sudo add-apt-repository multiverse -y;
     sudo apt install -y steam;
+
+    # Run first update in the background
+    nohup steam steam://open/install &> /dev/null & sleep 5;
 };
 
 function InstallVsCode()
@@ -361,8 +364,8 @@ sudo -v;
 
 if CheckEnvVariables;
 then
-    InstallGnomeUIUtilities  ;
-    InstallSteam             ;
+    InstallGnomeUIUtilities  ; # DONE
+    InstallSteam             ; # DONE
     InstallVsCode            ;
     InstallVirtualMachine    ;
     InstallCodingEcosystem   ;
