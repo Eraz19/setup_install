@@ -437,11 +437,11 @@ function InstallTerminalUtilities()
 
 sudo -v;
 
-if CheckEnvVariables;
-then
+#if CheckEnvVariables;
+#then
     IncreaseSudoEffectiveness;
 
-    InstallGnomeUIUtilities  ; # DONE
+#    InstallGnomeUIUtilities  ; # DONE
     InstallSteam             ; # DONE
     InstallVsCode            ; # DONE
     #InstallVirtualMachine    ;
@@ -449,4 +449,4 @@ then
     #InstallTerminalUtilities ;
 
     RemoveIncreaseSudoEffectiveness;
-fi
+#fi
