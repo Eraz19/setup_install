@@ -3,6 +3,19 @@
 
 source "$(dirname "$0")/font/install.sh"
 
+function WaitForAptLock()
+{
+    echo "Waiting for apt availability";
+
+    while
+        sudo lsof /var/lib/dpkg/lock >/dev/null 2>&1 || \
+        sudo lsof /var/lib/dpkg/lock-frontend >/dev/null 2>&1 || \
+        sudo lsof /var/lib/apt/lists/lock >/dev/null 2>&1 || \
+        sudo lsof /var/cache/apt/archives/lock >/dev/null 2>&1;
+    do
+        sleep 5;
+    done
+};
 
 function CheckEnvVariables()
 {
@@ -66,7 +79,8 @@ function InstallSteam()
     sudo apt install -y steam;
 
     # Run first update in the background
-    nohup steam steam://open/install &> /dev/null & sleep 5;
+    nohup steam steam://open/install &> /dev/null;
+    WaitForAptLock;
 };
 
 function InstallVsCode()
