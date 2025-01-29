@@ -357,6 +357,8 @@ function InstallTerminalUtilities()
     InstallOhMyZsh  ;
 };
 
+sudo -v;
+
 if CheckEnvVariables;
 then
     InstallGnomeUIUtilities  ;
