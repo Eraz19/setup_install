@@ -171,7 +171,7 @@ function InstallVirtualMachine()
             -spice port=5900,disable-ticketing=on \
             -device virtio-serial \
             -chardev spicevmc,id=spicechannel0,name=main \
-            -device virtserialport,chardev=spicechannel0,name=com.redhat.spice.0 \
+            -device virtserialport,chardev=spicechannel0,name=com.redhat.spice.0
     ";
 
     echo "Installing VirtualMachine...";

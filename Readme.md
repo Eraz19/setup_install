@@ -126,7 +126,7 @@ qemu-system-x86_64 \
     -spice port=5900,disable-ticketing=on \
     -device virtio-serial \
     -chardev spicevmc,id=spicechannel0,name=main \
-    -device virtserialport,chardev=spicechannel0,name=com.redhat.spice.0 \
+    -device virtserialport,chardev=spicechannel0,name=com.redhat.spice.0
 ```
 
 *.zshrc* :
@@ -159,7 +159,7 @@ alias vm_run='
         -spice port=5900,disable-ticketing=on \
         -device virtio-serial \
         -chardev spicevmc,id=spicechannel0,name=main \
-        -device virtserialport,chardev=spicechannel0,name=com.redhat.spice.0 \
+        -device virtserialport,chardev=spicechannel0,name=com.redhat.spice.0
 '
 ```
 
@@ -287,3 +287,7 @@ git clone https://github.com/zsh-users/zsh-syntax-highlighting.git $ZSH_CUSTOM/p
 # If the .zshrc is not already provided
 plugins=(git zsh-autosuggestions zsh-syntax-highlighting)
 ```
+
+
+
+
