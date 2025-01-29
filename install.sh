@@ -13,18 +13,6 @@ function RemoveIncreaseSudoEffectiveness()
     sudo rm /etc/sudoers.d/custom_sudo_timeout;
 };
 
-function WaitForAptLock()
-{
-    while
-        sudo lsof /var/lib/dpkg/lock >/dev/null 2>&1 || \
-        sudo lsof /var/lib/dpkg/lock-frontend >/dev/null 2>&1 || \
-        sudo lsof /var/lib/apt/lists/lock >/dev/null 2>&1 || \
-        sudo lsof /var/cache/apt/archives/lock >/dev/null 2>&1;
-    do
-        sleep 5;
-    done
-};
-
 function CheckEnvVariables()
 {
     local env_file=".env";
@@ -81,6 +69,29 @@ function InstallGnomeUIUtilities()
 
 function InstallSteam()
 {
+    function WaitForEndUpdateProcesse()
+    {
+        while true;
+        do
+            if sudo lsof /var/lib/dpkg/lock >/dev/null 2>&1 || \
+            sudo lsof /var/lib/dpkg/lock-frontend >/dev/null 2>&1 || \
+            sudo lsof /var/lib/apt/lists/lock >/dev/null 2>&1 || \
+            sudo lsof /var/cache/apt/archives/lock >/dev/null 2>&1;
+            then
+                sleep 5  ;
+                continue ;
+            fi
+
+            if pgrep -x "steam" > /dev/null;
+            then
+                sleep 5  ;
+                continue ;
+            fi
+
+            break;
+        done
+    };
+
     echo "Installing Steam...";
     
     sudo add-apt-repository multiverse -y;
@@ -88,7 +99,7 @@ function InstallSteam()
 
     # Run first update in the background
     nohup steam steam://open/install &> /dev/null;
-    WaitForAptLock;
+    WaitForEndUpdateProcesse;
     killall steam;
 };
 
@@ -394,7 +405,7 @@ then
 
     InstallGnomeUIUtilities  ; # DONE
     InstallSteam             ; # DONE
-    InstallVsCode            ;
+    InstallVsCode            ; # DONE
     #InstallVirtualMachine    ;
     #InstallCodingEcosystem   ;
     #InstallTerminalUtilities ;
