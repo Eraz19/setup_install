@@ -102,7 +102,7 @@ function InstallDiscord()
             do
                 WIN_NAME=$(xdotool getwindowname "$WIN_ID" 2>/dev/null);
                 
-                if [[ ! -z "$WIN_NAME" ]] && [[ "$WIN_NAME" =~ discordapp\.com/app\?_=([0-9]+) - Discord ]];
+                if [[ -n "$WIN_NAME" && "$WIN_NAME" =~ discordapp\.com/app\?_=([0-9]+)\ -\ Discord ]];
                 then
                     pkill -f discord;
                     xdotool windowkill "$WIN_ID";
