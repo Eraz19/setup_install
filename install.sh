@@ -96,17 +96,25 @@ function InstallDiscord()
 {
     function KillDiscordOnLoginWindow()
     {
-        while true;
-        do
+        while true; do
             echo "---------------------------"
             date
-            
-            pgrep -af discord | while read PID CMD;
-            do
-                echo "PID: $PID | Command: $CMD"
-            done
+            # Get all visible window IDs
+            xdotool search --onlyvisible --name "" | while read WIN_ID; do
+                # Get the window name for each ID
+                WIN_NAME=$(xdotool getwindowname "$WIN_ID" 2>/dev/null)
+                
+                if [[ ! -z "$WIN_NAME" ]]; then
+                    echo "Window ID: $WIN_ID | Name: $WIN_NAME"
 
-            sleep 7
+                    # If the window is related to Discord, print more details
+                    if [[ "$WIN_NAME" == *"Discord"* ]]; then
+                        echo "Discord window detected: $WIN_NAME"
+                        xwininfo -id "$WIN_ID"  # Gives detailed window information
+                    fi
+                fi
+            done
+            sleep 5  # Wait before checking again
         done
 
         #while true;
