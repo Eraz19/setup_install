@@ -101,9 +101,15 @@ function InstallSteam()
 
     function ListWindow()
     {
-        pgrep -af steam | while read PID CMD; do
-            # Print the PID and command associated with each Steam process
-            echo "PID: $PID | Command: $CMD"
+        while true; do
+            echo "---------------------------"
+            date
+            # Find all processes related to Steam and display them
+            pgrep -af steam | while read PID CMD; do
+                echo "PID: $PID | Command: $CMD"
+            done
+            # Sleep for a few seconds before checking again
+            sleep 2
         done
     }
 
