@@ -99,17 +99,24 @@ function InstallSteam()
         done
     }
 
-    function ListWindow()
+    function KillSteamOnLoginWindow()
     {
+        echo "Monitoring for Steam login window..."
+        
         while true; do
-            echo "---------------------------"
-            date
-            # Find all processes related to Steam and display them
-            pgrep -af steam | while read PID CMD; do
-                echo "PID: $PID | Command: $CMD"
-            done
-            # Sleep for a few seconds before checking again
-            sleep 10
+            # Check if the steam-runtime-launcher-service process exists
+            if pgrep -f steam-runtime-launcher-service >/dev/null; then
+                echo "Detected Steam login window! Killing all Steam processes..."
+                
+                # Kill all Steam-related processes
+                pkill -f steam
+                
+                echo "All Steam processes have been terminated."
+                break  # Exit the loop after killing Steam
+            fi
+            
+            # Sleep to avoid excessive CPU usage
+            sleep 2
         done
     }
 
@@ -181,7 +188,7 @@ function InstallSteam()
     sudo apt install -y steam;
 
     # Run first update in the background
-    nohup steam steam://open/install &> /dev/null & ListWindow;
+    nohup steam steam://open/install &> /dev/null & KillSteamOnLoginWindow;
 
     # Wait until Steam update is fully completed
     #WaitForSteamUpdate
