@@ -96,37 +96,23 @@ function InstallDiscord()
 {
     function KillDiscordOnLoginWindow()
     {
-        while true; do
-            echo "---------------------------"
-            date
-            # Get all visible window IDs
-            xdotool search --onlyvisible --name "" | while read WIN_ID; do
-                # Get the window name for each ID
-                WIN_NAME=$(xdotool getwindowname "$WIN_ID" 2>/dev/null)
+        while true;
+        do
+            xdotool search --onlyvisible --name "" | while read WIN_ID;
+            do
+                WIN_NAME=$(xdotool getwindowname "$WIN_ID" 2>/dev/null);
                 
-                if [[ ! -z "$WIN_NAME" ]]; then
-                    echo "Window ID: $WIN_ID | Name: $WIN_NAME"
-
-                    # If the window is related to Discord, print more details
-                    if [[ "$WIN_NAME" == *"Discord"* ]]; then
-                        echo "Discord window detected: $WIN_NAME"
-                        xwininfo -id "$WIN_ID"  # Gives detailed window information
-                    fi
+                if [[ ! -z "$WIN_NAME" ]] && [[ "$WIN_NAME" =~ discordapp\.com/app\?_=([0-9]+) - Discord ]];
+                then
+                    pkill -f discord;
+                    xdotool windowkill "$WIN_ID";
+                    
+                    break;
                 fi
             done
-            sleep 5  # Wait before checking again
-        done
 
-        #while true;
-        #do
-        #    if pgrep -f steam-runtime-launcher-service >/dev/null;
-        #    then
-        #        pkill -f steam;
-        #        break;
-        #    fi
-        #    
-        #    sleep 2;
-        #done
+            sleep 2;
+        done
     };
 
     sudo wget -O discord.deb "https://discord.com/api/download?platform=linux&format=deb";
