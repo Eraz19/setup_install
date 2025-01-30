@@ -69,39 +69,68 @@ function InstallGnomeUIUtilities()
 
 function InstallSteam()
 {
-    function WaitEndUpdateProcess()
+    function WaitForSteamUpdate()
     {
-        echo "Enter WaitEndUpdateProcess";
+        echo "Waiting for Steam update to complete..."
 
-        while true;
-        do
-            echo "In loop";
-
-            if
-                sudo lsof /var/lib/dpkg/lock >/dev/null 2>&1 || \
-                sudo lsof /var/lib/dpkg/lock-frontend >/dev/null 2>&1 || \
-                sudo lsof /var/lib/apt/lists/lock >/dev/null 2>&1 || \
-                sudo lsof /var/cache/apt/archives/lock >/dev/null 2>&1;
-            then
-                sleep 5  ;
-                echo "apt locked"
-                continue ;
-            fi
-
-            echo "apt unlocked"
-
-            if pgrep -x "steam" > /dev/null;
-            then
-                echo "kill steam"
-                pkill -f "steam";
-                
-                break;
-            fi
-
-            break;
+        # Keep checking if Steam is still updating
+        while pgrep -x "steam" > /dev/null; do
+            sleep 5
         done
-    };
 
+        echo "Steam update finished."
+    }
+
+    function CloseSteamLoginWindow()
+    {
+        echo "Checking for Steam login window..."
+
+        while true; do
+            # Find the Steam login window
+            WIN_ID=$(xdotool search --onlyvisible --name "Steam" 2>/dev/null)
+
+            if [[ ! -z "$WIN_ID" ]]; then
+                echo "Steam login window detected. Closing it..."
+                xdotool windowkill "$WIN_ID"
+                break
+            fi
+
+            sleep 5
+        done
+    }
+
+    #function WaitEndUpdateProcess()
+    #{
+    #    echo "Enter WaitEndUpdateProcess";
+
+    #    while true;
+    #    do
+    #        echo "In loop";
+
+    #        if
+    #            sudo lsof /var/lib/dpkg/lock >/dev/null 2>&1 || \
+    #            sudo lsof /var/lib/dpkg/lock-frontend >/dev/null 2>&1 || \
+    #            sudo lsof /var/lib/apt/lists/lock >/dev/null 2>&1 || \
+    #            sudo lsof /var/cache/apt/archives/lock >/dev/null 2>&1;
+    #        then
+    #            sleep 5  ;
+    #            echo "apt locked"
+    #            continue ;
+    #        fi
+
+    #        echo "apt unlocked"
+
+    #        if pgrep -x "steam" > /dev/null;
+    #        then
+    #            echo "kill steam"
+    #            pkill -f "steam";
+    #            
+    #            break;
+    #        fi
+
+    #        break;
+    #    done
+    #};
 
     #function WaitForSteamUpdate()
     #{
@@ -138,7 +167,13 @@ function InstallSteam()
     sudo apt install -y steam;
 
     # Run first update in the background
-    nohup steam steam://open/install &> /dev/null & WaitEndUpdateProcess;
+    nohup steam steam://open/install &> /dev/null &
+
+    # Wait until Steam update is fully completed
+    WaitForSteamUpdate
+
+    # Once update is done, close the Steam login window automatically
+    CloseSteamLoginWindow
 };
 
 function InstallVsCode()
@@ -443,7 +478,7 @@ sudo -v;
 
 #    InstallGnomeUIUtilities  ; # DONE
     InstallSteam             ; # DONE
-    InstallVsCode            ; # DONE
+    #InstallVsCode            ; # DONE
     #InstallVirtualMachine    ;
     #InstallCodingEcosystem   ;
     #InstallTerminalUtilities ;
