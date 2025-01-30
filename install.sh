@@ -106,8 +106,7 @@ function InstallDiscord()
                 then
                     pkill -f discord;
                     xdotool windowkill "$WIN_ID";
-                    
-                    break;
+                    return;
                 fi
             done
 
@@ -119,7 +118,7 @@ function InstallDiscord()
     sudo dpkg -i discord.deb;
     sudo apt install -f -y;
 
-    nohup discord &> /dev/null & KillDiscordOnLoginWindow;
+    setsid discord & KillDiscordOnLoginWindow;
 };
 
 function InstallVsCode()
