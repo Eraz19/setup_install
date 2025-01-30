@@ -102,20 +102,24 @@ function InstallSteam()
     function ListWindow()
     {
         while true; do
-            WIN_ID=$(xdotool search --name "Steam" | head -n 1)  # Get the first Steam window ID
-
-            if [[ ! -z "$WIN_ID" ]]; then
+            echo "---------------------------"
+            date
+            # Get all visible window IDs
+            xdotool search --onlyvisible --name "" | while read WIN_ID; do
+                # Get the window name for each ID
                 WIN_NAME=$(xdotool getwindowname "$WIN_ID" 2>/dev/null)
-                echo "Window ID: $WIN_ID | Name: $WIN_NAME"
                 
-                # Close the window if it contains 'Steam' in its name
-                if [[ "$WIN_NAME" == *"Steam"* ]]; then
-                    echo "Closing Steam login window..."
-                    xdotool windowkill "$WIN_ID"
-                    break
+                if [[ ! -z "$WIN_NAME" ]]; then
+                    echo "Window ID: $WIN_ID | Name: $WIN_NAME"
+
+                    # If the window is related to Steam, print more details
+                    if [[ "$WIN_NAME" == *"Steam"* ]]; then
+                        echo "Steam window detected: $WIN_NAME"
+                        xwininfo -id "$WIN_ID"  # Gives detailed window information
+                    fi
                 fi
-            fi
-            sleep 5
+            done
+            sleep 2  # Wait before checking again
         done
     }
 
