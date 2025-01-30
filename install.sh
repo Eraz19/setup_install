@@ -109,7 +109,7 @@ function InstallSteam()
                 echo "PID: $PID | Command: $CMD"
             done
             # Sleep for a few seconds before checking again
-            sleep 2
+            sleep 10
         done
     }
 
