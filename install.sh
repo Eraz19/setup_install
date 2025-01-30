@@ -69,118 +69,19 @@ function InstallGnomeUIUtilities()
 
 function InstallSteam()
 {
-    function WaitForSteamUpdate()
-    {
-        echo "Waiting for Steam update to complete..."
-
-        # Keep checking if Steam is still updating
-        while pgrep -x "steam" > /dev/null; do
-            sleep 5
-        done
-
-        echo "Steam update finished."
-    }
-
-    function CloseSteamLoginWindow()
-    {
-        echo "Checking for Steam login window..."
-
-        while true; do
-            # Find the Steam login window
-            WIN_ID=$(xdotool search --onlyvisible --name "Steam" 2>/dev/null)
-
-            if [[ ! -z "$WIN_ID" ]]; then
-                echo "Steam login window detected. Closing it..."
-                xdotool windowkill "$WIN_ID"
-                break
-            fi
-
-            sleep 5
-        done
-    }
-
     function KillSteamOnLoginWindow()
     {
-        echo "Monitoring for Steam login window..."
-        
-        while true; do
-            # Check if the steam-runtime-launcher-service process exists
-            if pgrep -f steam-runtime-launcher-service >/dev/null; then
-                echo "Detected Steam login window! Killing all Steam processes..."
-                
-                # Kill all Steam-related processes
-                pkill -f steam
-                
-                echo "All Steam processes have been terminated."
-                break  # Exit the loop after killing Steam
+        while true;
+        do
+            if pgrep -f steam-runtime-launcher-service >/dev/null;
+            then
+                pkill -f steam;
+                break;
             fi
             
-            # Sleep to avoid excessive CPU usage
-            sleep 2
+            sleep 2;
         done
-    }
-
-    #function WaitEndUpdateProcess()
-    #{
-    #    echo "Enter WaitEndUpdateProcess";
-
-    #    while true;
-    #    do
-    #        echo "In loop";
-
-    #        if
-    #            sudo lsof /var/lib/dpkg/lock >/dev/null 2>&1 || \
-    #            sudo lsof /var/lib/dpkg/lock-frontend >/dev/null 2>&1 || \
-    #            sudo lsof /var/lib/apt/lists/lock >/dev/null 2>&1 || \
-    #            sudo lsof /var/cache/apt/archives/lock >/dev/null 2>&1;
-    #        then
-    #            sleep 5  ;
-    #            echo "apt locked"
-    #            continue ;
-    #        fi
-
-    #        echo "apt unlocked"
-
-    #        if pgrep -x "steam" > /dev/null;
-    #        then
-    #            echo "kill steam"
-    #            pkill -f "steam";
-    #            
-    #            break;
-    #        fi
-
-    #        break;
-    #    done
-    #};
-
-    #function WaitForSteamUpdate()
-    #{
-    #    echo "Waiting for Steam to finish updating..."
-    #    
-    #    while pgrep -x "steam" > /dev/null; do
-    #        sleep 5
-    #    done
-    #    
-    #    echo "Steam update finished."
-    #}
-
-    #function CloseSteamLoginWindow()
-    #{
-    #    echo "Checking for Steam login window..."
-
-    #    while true; do
-    #        # Detect Steam login window using xdotool
-    #        WIN_ID=$(xdotool search --name "Steam" 2>/dev/null)
-
-    #        if [[ ! -z "$WIN_ID" ]]; then
-    #            echo "Steam login window detected. Closing it..."
-    #            xdotool windowkill "$WIN_ID"
-    #            break
-    #        fi
-
-    #        sleep 5
-    #    done
-    #}
+    };
 
     echo "Installing Steam...";
     
@@ -189,12 +90,6 @@ function InstallSteam()
 
     # Run first update in the background
     nohup steam steam://open/install &> /dev/null & KillSteamOnLoginWindow;
-
-    # Wait until Steam update is fully completed
-    #WaitForSteamUpdate
-
-    # Once update is done, close the Steam login window automatically
-    #CloseSteamLoginWindow
 };
 
 function InstallVsCode()
@@ -263,7 +158,7 @@ function InstallVsCode()
                     "command": "editor.action.transformToLowercase",
                     "when": "editorTextFocus"
                 }
-            ]' | sudo tee "$1" > /dev/null;
+            ]' | sed 's/^\t\t\t//' | sudo tee "$1" > /dev/null;
         };
 
         local keyboard_shortcut_folder="$HOME/.config/Code/User";
@@ -497,12 +392,13 @@ sudo -v;
 #then
     IncreaseSudoEffectiveness;
 
-#    InstallGnomeUIUtilities  ; # DONE
-    InstallSteam             ; # DONE
-    #InstallVsCode            ; # DONE
+    #InstallGnomeUIUtilities  ; # DONE
+    #InstallSteam             ; # DONE
+    InstallVsCode            ; # DONE
     #InstallVirtualMachine    ;
     #InstallCodingEcosystem   ;
     #InstallTerminalUtilities ;
 
     RemoveIncreaseSudoEffectiveness;
 #fi
+
