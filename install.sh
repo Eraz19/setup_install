@@ -158,7 +158,7 @@ function InstallVsCode()
                     "command": "editor.action.transformToLowercase",
                     "when": "editorTextFocus"
                 }
-            ]' | sed 's/^\t\t\t//' | sudo tee "$1" > /dev/null;
+            ]' | sed 's/^ \{12\}//' | sudo tee "$1" > /dev/null;
         };
 
         local keyboard_shortcut_folder="$HOME/.config/Code/User";
