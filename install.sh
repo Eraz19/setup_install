@@ -51,10 +51,7 @@ function CheckEnvVariables()
 
 function SetZshConfigFile()
 {
-    echo "write $1";
-    echo "In file $3";
-
-    sudo printf '\n%s' "$1" | sed -E "s/^[[:space:]]{${2:-0}}//" | sudo tee -a "$3" > /dev/null;
+    sudo printf '\n%s' "$1" | sed -E "s/^[[:space:]]{${2:-0}}//" | sudo tee -a "$PROJECT_ROOT_FOLDER/.zshrc" > /dev/null;
 };
 
 
@@ -93,6 +90,42 @@ function InstallSteam()
 
     # Run first update in the background
     nohup steam steam://open/install &> /dev/null & KillSteamOnLoginWindow;
+};
+
+function InstallDiscord()
+{
+    function KillDiscordOnLoginWindow()
+    {
+        while true;
+        do
+            echo "---------------------------"
+            date
+            
+            pgrep -af discord | while read PID CMD;
+            do
+                echo "PID: $PID | Command: $CMD"
+            done
+
+            sleep 7
+        done
+
+        #while true;
+        #do
+        #    if pgrep -f steam-runtime-launcher-service >/dev/null;
+        #    then
+        #        pkill -f steam;
+        #        break;
+        #    fi
+        #    
+        #    sleep 2;
+        #done
+    };
+
+    sudo wget -O discord.deb "https://discord.com/api/download?platform=linux&format=deb";
+    sudo dpkg -i discord.deb;
+    sudo apt install -f -y;
+
+    nohup discord &> /dev/null & KillDiscordOnLoginWindow;
 };
 
 function InstallVsCode()
@@ -242,7 +275,7 @@ function InstallVirtualMachine()
                     -chardev spicevmc,id=spicechannel0,name=vdagent \
                     -device virtserialport,chardev=spicechannel0,name=com.redhat.spice.0;
             };
-        ' 12 "$PROJECT_ROOT_FOLDER/.zshrc";
+        ' 12;
     };
 
     echo "Installing VirtualMachine...";
@@ -269,50 +302,57 @@ function InstallCodingEcosystem()
 
     function InstallNvm()
     {
-        local nvm_environment_variables="
-            export NVM_DIR="$HOME/.nvm"
-            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-            [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-        ";
+        function SettingNvmEnvironmentVariable()
+        {
+            SetZshConfigFile '
+                export NVM_DIR="$HOME/.nvm"
+                [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+                [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+            ' 16;
+        };
 
         echo "Installing Nvm toolchain (including nodeJS and npm)..."
         
         sudo curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash;
         sudo nvm install --lts;
-
-        SetZshConfigFile $nvm_environment_variables "$PROJECT_ROOT/.zshrc";
+        SettingNvmEnvironmentVariable;
     };
 
     function InstallKotlin()
     {
         function InstallJVM()
         {
-            local jvm_environment_variables="
-                export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
-                export PATH=$JAVA_HOME/bin:$PATH
-            ";
+            function SettingJvmEnvironmentVariable()
+            {
+                SetZshConfigFile '
+                    export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+                    export PATH=$JAVA_HOME/bin:$PATH
+                ' 20;
+            };
 
             echo "Installing Jvm...";
 
             sudo apt install -y openjdk-17-jdk;
-            SetZshConfigFile $jvm_environment_variables "$PROJECT_ROOT/.zshrc";
+            SettingJvmEnvironmentVariable;
         };
 
         function InstallKotlinToolchain()
         {
-            local sdk_environment_variables="
-                #THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
-                export SDKMAN_DIR="$HOME/.sdkman"
-                [[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
-            ";
+            function SettingSdkEnvironmentVariable()
+            {
+                SetZshConfigFile '
+                    #THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
+                    export SDKMAN_DIR="$HOME/.sdkman"
+                    [[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
+                ' 20;
+            };
 
             echo "Installing Sdk...";
 
             sudo curl -s "https://get.sdkman.io" | bash;
             sudo sdk install kotlin 1.8.20;
             sudo sdk install gradle 8.12;
-
-            SetZshConfigFile $sdk_environment_variables "$PROJECT_ROOT/.zshrc";
+            SettingSdkEnvironmentVariable;
         };
 
         echo "Installing Kotlin toolchain...";
@@ -333,7 +373,7 @@ function InstallTerminalUtilities()
         echo "Installing Zsh...";
 
         sudo apt install -y zsh;
-        sudo ln -s $PROJECT_ROOT/.zshrc $HOME/.zshrc;
+        sudo ln -s $PROJECT_ROOT_FOLDER/.zshrc $HOME/.zshrc;
     };
     
     function InstallFzf()
@@ -373,24 +413,32 @@ function InstallTerminalUtilities()
 
     function InstallYazi()
     {
+        function SettingYaziAlias()
+        {
+            SetZshConfigFile 'alias nav=yazi' 0;
+        };
+
         echo "Installing Yazi...";
 
         sudo wget -qO yazi.zip https://github.com/sxyazi/yazi/releases/latest/download/yazi-x86_64-unknown-linux-gnu.zip;
         sudo unzip -q yazi.zip -d yazi-temp;
         sudo mv yazi-temp/*/yazi /usr/local/bin;
         sudo rm -rf yazi-temp yazi.zip;
-
-        SetZshConfigFile "alias nav=yazi" "$PROJECT_ROOT/.zshrc";
+        SettingYaziAlias;
     };
 
     function InstallOhMyPosh()
     {
+        function SettingOhMyPoshLaunching()
+        {
+            SetZshConfigFile 'eval '$(oh-my-posh init zsh --config $PROJECT_ROOT_FOLDER/oh_my_posh/custom.omp.json)'' 0;
+        };
+
         echo "Installing Oh-My-Posh...";
         
         sudo wget https://github.com/JanDeDobbeleer/oh-my-posh/releases/latest/download/posh-linux-amd64 -O /usr/local/bin/oh-my-posh;
         sudo chmod +x /usr/local/bin/oh-my-posh;
-    
-        SetZshConfigFile "eval '$(oh-my-posh init zsh --config $PROJECT_ROOT_FOLDER/oh_my_posh/custom.omp.json)'" "$PROJECT_ROOT/.zshrc";
+        SettingOhMyPoshLaunching;
     
         InstallFontNerd ;
         SetFont         ;
@@ -420,7 +468,7 @@ function InstallTerminalUtilities()
     InstallNeofetch ;
     InstallYazi     ;
     InstallOhMyPosh ;
-    InstallOhMyZsh  ;
+    #InstallOhMyZsh  ;
 };
 
 sudo -v;
@@ -431,9 +479,10 @@ sudo -v;
 
     #InstallGnomeUIUtilities  ; # DONE
     #InstallSteam             ; # DONE
+    InstallDiscord;
     #InstallVsCode            ; # DONE
     #InstallVirtualMachine    ; # DONE
-    #InstallCodingEcosystem   ;
+    #InstallCodingEcosystem   ; # DONE
     #InstallTerminalUtilities ;
 
     RemoveIncreaseSudoEffectiveness;
