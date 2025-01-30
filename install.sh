@@ -99,6 +99,21 @@ function InstallSteam()
         done
     }
 
+    function ListWindow()
+    {
+        while true; do
+            echo "---------------------------"
+            date
+            xdotool search --onlyvisible --name "" | while read WIN_ID; do
+                WIN_NAME=$(xdotool getwindowname "$WIN_ID" 2>/dev/null)
+                if [[ ! -z "$WIN_NAME" ]]; then
+                    echo "Window ID: $WIN_ID | Name: $WIN_NAME"
+                fi
+            done
+            sleep 2
+        done
+    }
+
     #function WaitEndUpdateProcess()
     #{
     #    echo "Enter WaitEndUpdateProcess";
@@ -167,13 +182,13 @@ function InstallSteam()
     sudo apt install -y steam;
 
     # Run first update in the background
-    nohup steam steam://open/install &> /dev/null &
+    nohup steam steam://open/install &> /dev/null & ListWindow;
 
     # Wait until Steam update is fully completed
-    WaitForSteamUpdate
+    #WaitForSteamUpdate
 
     # Once update is done, close the Steam login window automatically
-    CloseSteamLoginWindow
+    #CloseSteamLoginWindow
 };
 
 function InstallVsCode()
