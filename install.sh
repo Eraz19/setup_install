@@ -3,11 +3,11 @@
 
 source "$(dirname "$0")/font/install.sh"
 
+
 function IncreaseSudoEffectiveness()
 {
     echo "Defaults timestamp_timeout=60" | sudo tee -a /etc/sudoers.d/custom_sudo_timeout;
 };
-
 function RemoveIncreaseSudoEffectiveness()
 {
     sudo rm /etc/sudoers.d/custom_sudo_timeout;
@@ -49,9 +49,12 @@ function CheckEnvVariables()
     return 0;
 };
 
-function SetConfigFile()
+function SetZshConfigFile()
 {
-    sudo echo "\n$1" >> $2;
+    echo "write $1";
+    echo "In file $3";
+
+    sudo printf '\n%s' "$1" | sed -E "s/^[[:space:]]{${2:-0}}//" | sudo tee -a "$3" > /dev/null;
 };
 
 
@@ -146,8 +149,7 @@ function InstallVsCode()
     {
         function SetKeyboardShortcut()
         {
-            sudo printf '%s\n' '
-            [
+            sudo printf '[
                 {
                     "key": "ctrl+alt+m",
                     "command": "editor.action.transformToUppercase",
@@ -177,41 +179,76 @@ function InstallVsCode()
 
 function InstallVirtualMachine()
 {
-    local create_vm_command="qemu-img create -f qcow2 $PROJECT_ROOT_FOLDER/virtual_machine/$VIRTUAL_MACHINE_DISK_FILE 40G";
-    local install_vm_disk_command="
-        qemu-system-x86_64 \
-            -enable-kvm \
-            -m 4096 \
-            -cpu host \
-            -smp 2 \
-            -cdrom $PROJECT_ROOT_FOLDER/virtual_machine//$VIRTUAL_MACHINE_ISO_FILE \
-            -drive file=$PROJECT_ROOT_FOLDER/virtual_machine//$VIRTUAL_MACHINE_DISK_FILE,format=qcow2 \
-            -boot d \
-            -vga virtio \
-            -display sdl
-    ";
-    local vm_run_command="
-        qemu-system-x86_64 \
-            -enable-kvm \
-            -m 4096 \
-            -cpu host \
-            -smp 2 \
-            -drive file=$PROJECT_ROOT_FOLDER/virtual_machine/disk.qcow2,format=qcow2,snapshot=on \
-            -vga virtio \
-            -display sdl \
-            -spice port=5900,disable-ticketing=on \
-            -device virtio-serial \
-            -chardev spicevmc,id=spicechannel0,name=vdagent \
-            -device virtserialport,chardev=spicechannel0,name=com.redhat.spice.0
-    ";
+    function SettingVirtualMachineCommandAliases()
+    {
+        SetZshConfigFile '
+            alias vm_disk_create="vm_disk_create";
+            function vm_disk_create()
+            {
+                if [ -z "$1" ];
+                then
+                    echo "Error: No disk file name provided.";
+                    echo "Usage: vm_disk_create <disk_filename>.qcow2"; # Escape single quotes
+                    return 1;
+                fi
+
+                qemu-img create -f qcow2 "'"$PROJECT_ROOT_FOLDER"'/virtual_machine/$1" 40G;
+
+                echo "Virtual disk $1 created in '"$PROJECT_ROOT_FOLDER"'/virtual_machine/";
+            };
+
+            alias vm_os_install="vm_os_install";
+            function vm_os_install()
+            {
+                if [ -z "$1" ] || [ -z "$2" ];
+                then
+                    echo "Error: Missing arguments.";
+                    echo "Usage: vm_os_install <iso_filepath> <disk_filename>.qcow2";
+                    return 1;
+                fi
+
+                qemu-system-x86_64 \
+                    -enable-kvm \
+                    -m 4096 \
+                    -cpu host \
+                    -smp 2 \
+                    -cdrom $1 \
+                    -drive file="'"$PROJECT_ROOT_FOLDER"'/virtual_machine/$2",format=qcow2 \
+                    -boot d \
+                    -vga virtio \
+                    -display sdl;
+            };
+
+            alias vm_run="vm_run";
+            function vm_run()
+            {
+                if [ -z "$1" ];
+                then
+                    echo "Error: No disk file name provided.";
+                    echo "Usage: vm_run <disk_filename>.qcow2";
+                    return 1;
+                fi
+
+                qemu-system-x86_64 \
+                    -enable-kvm \
+                    -m 4096 \
+                    -cpu host \
+                    -smp 2 \
+                    -drive file="'"$PROJECT_ROOT_FOLDER"'/virtual_machine/$1",format=qcow2,snapshot=on \
+                    -vga virtio \
+                    -display sdl \
+                    -spice port=5900,disable-ticketing=on \
+                    -device virtio-serial \
+                    -chardev spicevmc,id=spicechannel0,name=vdagent \
+                    -device virtserialport,chardev=spicechannel0,name=com.redhat.spice.0;
+            };
+        ' 12 "$PROJECT_ROOT_FOLDER/.zshrc";
+    };
 
     echo "Installing VirtualMachine...";
     
     sudo apt install -y qemu qemu-kvm libvirt-daemon-system libvirt-clients bridge-utils virt-manager;
-    
-    SetConfigFile "alias vm_disk_create=$create_vm_command" "$PROJECT_ROOT/.zshrc";
-    SetConfigFile "alias vm_install=$create_vm_command" "$PROJECT_ROOT/.zshrc";
-    SetConfigFile "alias vm_run=$vm_run_command" "$PROJECT_ROOT/.zshrc";
+    SettingVirtualMachineCommandAliases;
 };
 
 function InstallCodingEcosystem()
@@ -243,7 +280,7 @@ function InstallCodingEcosystem()
         sudo curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash;
         sudo nvm install --lts;
 
-        SetConfigFile $nvm_environment_variables "$PROJECT_ROOT/.zshrc";
+        SetZshConfigFile $nvm_environment_variables "$PROJECT_ROOT/.zshrc";
     };
 
     function InstallKotlin()
@@ -258,7 +295,7 @@ function InstallCodingEcosystem()
             echo "Installing Jvm...";
 
             sudo apt install -y openjdk-17-jdk;
-            SetConfigFile $jvm_environment_variables "$PROJECT_ROOT/.zshrc";
+            SetZshConfigFile $jvm_environment_variables "$PROJECT_ROOT/.zshrc";
         };
 
         function InstallKotlinToolchain()
@@ -275,7 +312,7 @@ function InstallCodingEcosystem()
             sudo sdk install kotlin 1.8.20;
             sudo sdk install gradle 8.12;
 
-            SetConfigFile $sdk_environment_variables "$PROJECT_ROOT/.zshrc";
+            SetZshConfigFile $sdk_environment_variables "$PROJECT_ROOT/.zshrc";
         };
 
         echo "Installing Kotlin toolchain...";
@@ -343,7 +380,7 @@ function InstallTerminalUtilities()
         sudo mv yazi-temp/*/yazi /usr/local/bin;
         sudo rm -rf yazi-temp yazi.zip;
 
-        SetConfigFile "alias nav=yazi" "$PROJECT_ROOT/.zshrc";
+        SetZshConfigFile "alias nav=yazi" "$PROJECT_ROOT/.zshrc";
     };
 
     function InstallOhMyPosh()
@@ -353,7 +390,7 @@ function InstallTerminalUtilities()
         sudo wget https://github.com/JanDeDobbeleer/oh-my-posh/releases/latest/download/posh-linux-amd64 -O /usr/local/bin/oh-my-posh;
         sudo chmod +x /usr/local/bin/oh-my-posh;
     
-        SetConfigFile "eval '$(oh-my-posh init zsh --config $PROJECT_ROOT_FOLDER/oh_my_posh/custom.omp.json)'" "$PROJECT_ROOT/.zshrc";
+        SetZshConfigFile "eval '$(oh-my-posh init zsh --config $PROJECT_ROOT_FOLDER/oh_my_posh/custom.omp.json)'" "$PROJECT_ROOT/.zshrc";
     
         InstallFontNerd ;
         SetFont         ;
@@ -366,7 +403,7 @@ function InstallTerminalUtilities()
             sudo git clone https://github.com/zsh-users/zsh-autosuggestions.git $ZSH_CUSTOM/plugins/zsh-autosuggestions;
             sudo git clone https://github.com/zsh-users/zsh-syntax-highlighting.git $ZSH_CUSTOM/plugins/zsh-syntax-highlighting;
 
-            SetConfigFile "plugins=(git zsh-autosuggestions zsh-syntax-highlighting)" "$PROJECT_ROOT/.zshrc";
+            SetZshConfigFile "plugins=(git zsh-autosuggestions zsh-syntax-highlighting)" "$PROJECT_ROOT/.zshrc";
         };
 
         echo "Installing Oh-My-Zsh...";
@@ -394,8 +431,8 @@ sudo -v;
 
     #InstallGnomeUIUtilities  ; # DONE
     #InstallSteam             ; # DONE
-    InstallVsCode            ; # DONE
-    #InstallVirtualMachine    ;
+    #InstallVsCode            ; # DONE
+    #InstallVirtualMachine    ; # DONE
     #InstallCodingEcosystem   ;
     #InstallTerminalUtilities ;
 
