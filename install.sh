@@ -101,25 +101,9 @@ function InstallSteam()
 
     function ListWindow()
     {
-        while true; do
-            echo "---------------------------"
-            date
-            # Get all visible window IDs
-            xdotool search --onlyvisible --name "" | while read WIN_ID; do
-                # Get the window name for each ID
-                WIN_NAME=$(xdotool getwindowname "$WIN_ID" 2>/dev/null)
-                
-                if [[ ! -z "$WIN_NAME" ]]; then
-                    echo "Window ID: $WIN_ID | Name: $WIN_NAME"
-
-                    # If the window is related to Steam, print more details
-                    if [[ "$WIN_NAME" == *"Steam"* ]]; then
-                        echo "Steam window detected: $WIN_NAME"
-                        xwininfo -id "$WIN_ID"  # Gives detailed window information
-                    fi
-                fi
-            done
-            sleep 2  # Wait before checking again
+        pgrep -af steam | while read PID CMD; do
+            # Print the PID and command associated with each Steam process
+            echo "PID: $PID | Command: $CMD"
         done
     }
 
