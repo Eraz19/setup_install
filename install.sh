@@ -96,31 +96,30 @@ function InstallDiscord()
 {
     function KillDiscordOnLoginWindow()
     {
-        local found=false
+        local is_login_window_visible=false;
 
-        while ! $found;
+        while true;
         do
-            xdotool search --onlyvisible --name "" | while read WIN_ID;
-            do
-                WIN_NAME=$(xdotool getwindowname "$WIN_ID" 2>/dev/null);
-                
-                if [[ -n "$WIN_NAME" && "$WIN_NAME" =~ discordapp\.com/app\?_=([0-9]+)\ -\ Discord ]];
-                then
-                    pkill -f discord;
-                    found=true
-                    echo "kill discord"
-                    break  # Exit inner loop
-                fi
-            done
-
-            if $found; then
-                break  # Exit outer loop
+            if [ "$is_login_window_visible" = false ];
+            then 
+                xdotool search --onlyvisible --name "" | while read WIN_ID;
+                do
+                    WIN_NAME=$(xdotool getwindowname "$WIN_ID" 2>/dev/null);
+                    
+                    if [[ -n "$WIN_NAME" && "$WIN_NAME" =~ discordapp\.com/app\?_=([0-9]+)\ -\ Discord ]];
+                    then
+                        is_login_window_visible=true;
+                    fi
+                done
+            else
+                pkill -f discord;
+                break;
             fi
 
             sleep 2;
-            echo "in loop"
+            echo "in loop";
         done
-    }
+    };
 
     echo "Installing Discord...";
 
@@ -128,7 +127,8 @@ function InstallDiscord()
     sudo dpkg -i discord.deb;
     sudo apt install -f -y;
 
-    discord &> /dev/null & disown; KillDiscordOnLoginWindow;
+    discord &> /dev/null & disown;
+    KillDiscordOnLoginWindow;
 };
 
 function InstallVsCode()
