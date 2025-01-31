@@ -100,28 +100,29 @@ function InstallDiscord()
 
         while true;
         do
-            if [ "$is_login_window_visible" = false ];
-            then 
-                xdotool search --onlyvisible --name "" | while read WIN_ID;
-                do
-                    WIN_NAME=$(xdotool getwindowname "$WIN_ID" 2>/dev/null);
-                    
-                    echo "opened window : $WIN_NAME";
+            if [ "$is_login_window_visible" = false ]; then 
+                # Store window IDs in a variable to avoid subshell issues
+                local window_ids=$(xdotool search --onlyvisible --name "")
 
-                    if [[ -n "$WIN_NAME" && "$WIN_NAME" =~ discordapp\.com/app\?_=([0-9]+)\ -\ Discord ]];
-                    then
-                        echo "targeted window visible";
-                        is_login_window_visible=true;
+                for WIN_ID in $window_ids; do
+                    WIN_NAME=$(xdotool getwindowname "$WIN_ID" 2>/dev/null)
+                    
+                    echo "opened window : $WIN_NAME"
+
+                    if [[ -n "$WIN_NAME" && "$WIN_NAME" =~ discordapp\.com/app\?_=([0-9]+)\ -\ Discord ]]; then
+                        echo "targeted window visible"
+                        is_login_window_visible=true
+                        break # Stop checking further windows
                     fi
                 done
             else
-                echo "kill discord";
-                pkill -f discord;
-                break;
+                echo "kill discord"
+                pkill -f discord
+                break
             fi
 
-            sleep 4;
-            echo "in loop";
+            sleep 4
+            echo "in loop"
         done
     };
 
