@@ -112,6 +112,7 @@ function InstallDiscord()
                     fi
                 done
             else
+                echo "kill discord";
                 pkill -f discord;
                 break;
             fi
