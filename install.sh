@@ -106,8 +106,11 @@ function InstallDiscord()
                 do
                     WIN_NAME=$(xdotool getwindowname "$WIN_ID" 2>/dev/null);
                     
+                    echo "opened window : $WIN_NAME";
+
                     if [[ -n "$WIN_NAME" && "$WIN_NAME" =~ discordapp\.com/app\?_=([0-9]+)\ -\ Discord ]];
                     then
+                        echo "targeted window visible";
                         is_login_window_visible=true;
                     fi
                 done
@@ -117,7 +120,7 @@ function InstallDiscord()
                 break;
             fi
 
-            sleep 2;
+            sleep 4;
             echo "in loop";
         done
     };
