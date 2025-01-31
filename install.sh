@@ -111,6 +111,7 @@ function InstallDiscord()
             done
 
             sleep 2;
+            echo "in loop"
         done
     };
 
