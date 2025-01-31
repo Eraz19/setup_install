@@ -105,7 +105,7 @@ function InstallDiscord()
                 if [[ -n "$WIN_NAME" && "$WIN_NAME" =~ discordapp\.com/app\?_=([0-9]+)\ -\ Discord ]];
                 then
                     pkill -f discord;
-                    xdotool windowkill "$WIN_ID";
+                    #xdotool windowkill "$WIN_ID";
                     return;
                 fi
             done
@@ -113,6 +113,8 @@ function InstallDiscord()
             sleep 2;
         done
     };
+
+    echo "Installing Discord...";
 
     sudo wget -O discord.deb "https://discord.com/api/download?platform=linux&format=deb";
     sudo dpkg -i discord.deb;
