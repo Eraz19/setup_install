@@ -105,8 +105,9 @@ function InstallDiscord()
                 if [[ -n "$WIN_NAME" && "$WIN_NAME" =~ discordapp\.com/app\?_=([0-9]+)\ -\ Discord ]];
                 then
                     pkill -f discord;
+                    echo "kill discord"
                     #xdotool windowkill "$WIN_ID";
-                    return;
+                    break 2;  # Exit both the inner and outer loops
                 fi
             done
 
