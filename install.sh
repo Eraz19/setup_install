@@ -1,9 +1,6 @@
 #!/bin/bash
 
 
-source "$(dirname "$0")/font/install.sh"
-
-
 function IncreaseSudoEffectiveness()
 {
     echo "Defaults timestamp_timeout=60" | sudo tee -a /etc/sudoers.d/custom_sudo_timeout;
@@ -27,13 +24,10 @@ function CheckEnvVariables()
     source "$(dirname "$0")/$env_file";
 
     local required_vars=(
-        PROJECT_ROOT_FOLDER
-        PROJECT_SYSTEM_FONT_FOLDER
-        VIRTUAL_MACHINE_DISK_FILE
-        VIRTUAL_MACHINE_ISO_FILE
-        GIT_USERNAME
-        GIT_EMAIL
-        GIT_SSl_KEY_FILE
+        'PROJECT_ROOT_FOLDER'
+        'GIT_USERNAME'
+        'GIT_EMAIL'
+        'GIT_SSl_KEY_FILE'
     );
 
     for var in "${required_vars[@]}";
@@ -100,29 +94,26 @@ function InstallDiscord()
 
         while true;
         do
-            if [ "$is_login_window_visible" = false ]; then 
-                # Store window IDs in a variable to avoid subshell issues
-                local window_ids=$(xdotool search --onlyvisible --name "")
+            if [ "$is_login_window_visible" = false ];
+            then 
+                local window_ids=$(xdotool search --onlyvisible --name "");
 
-                for WIN_ID in $window_ids; do
-                    WIN_NAME=$(xdotool getwindowname "$WIN_ID" 2>/dev/null)
+                for window_id in $window_ids;
+                do
+                    local window_name=$(xdotool getwindowname "$window_id" 2>/dev/null);
                     
-                    echo "opened window : $WIN_NAME"
-
-                    if [[ -n "$WIN_NAME" && "$WIN_NAME" =~ discordapp\.com/app\?_=([0-9]+)\ -\ Discord ]]; then
-                        echo "targeted window visible"
-                        is_login_window_visible=true
-                        break # Stop checking further windows
+                    if [[ -n "$window_name" && "$window_name" =~ discordapp\.com/app\?_=([0-9]+)\ -\ Discord ]];
+                    then
+                        is_login_window_visible=true;
+                        break;
                     fi
                 done
             else
-                echo "kill discord"
-                pkill -f discord
-                break
+                pkill -f discord;
+                break;
             fi
 
-            sleep 4
-            echo "in loop"
+            sleep 4;
         done
     };
 
@@ -437,6 +428,65 @@ function InstallTerminalUtilities()
 
     function InstallOhMyPosh()
     {
+        function InstallNerdFont()
+        {
+            local system_nerd_font_folder="$HOME/.local/share/fonts/NerdFonts";
+            local nerd_font_names=(
+                '0xProto'
+                'DepartureMono'
+                'ShareTechMono'
+                '3270'
+                'DroidSansMono'
+                'JetBrainsMono'  
+                'SourceCodePro'
+                'Agave'
+                'EnvyCodeR'
+                'Lekton'
+                'Terminus'
+                'AnonymousPro'
+                'FantasqueSansMono'
+                'LiberationMono'
+                'UbuntuSans'
+                'CascadiaMono'
+                'FiraCode'
+                'Lilex'
+                'Ubuntu'
+                'CodeNewRoman'
+                'FiraMono'
+                'Meslo'
+                'VictorMono'
+                'CommitMono'
+                'GeistMono'
+                'Monaspace'
+                'Cousine'
+                'Gohu'
+                'Monoid'
+                'D2Coding'
+                'IBMPlexMono'
+                'MPlus'
+            );
+
+            mkdir -p $system_nerd_font_folder;
+
+            for nerd_font_name in "${nerd_font_names[@]}";
+            do                
+                local font_url="https://github.com/ryanoasis/nerd-fonts/releases/latest/download/$nerd_font_name.zip";
+                
+                wget -q --show-progress "$font_url" -O "/tmp/${nerd_font_name}.zip";
+                
+                if [ $? -eq 0 ];
+                then
+                    unzip -o "/tmp/${nerd_font_name}.zip" -d "$system_nerd_font_folder";
+                else
+                    echo "Failed to download $nerd_font_name, skipping...";
+                fi
+                
+                rm "/tmp/${nerd_font_name}.zip";
+            done
+
+            fc-cache -fv;
+        };
+
         function SettingOhMyPoshLaunching()
         {
             SetZshConfigFile 'eval '$(oh-my-posh init zsh --config $PROJECT_ROOT_FOLDER/oh_my_posh/custom.omp.json)'' 0;
@@ -447,9 +497,8 @@ function InstallTerminalUtilities()
         sudo wget https://github.com/JanDeDobbeleer/oh-my-posh/releases/latest/download/posh-linux-amd64 -O /usr/local/bin/oh-my-posh;
         sudo chmod +x /usr/local/bin/oh-my-posh;
         SettingOhMyPoshLaunching;
-    
-        InstallFontNerd ;
-        SetFont         ;
+        InstallNerdFont;
+        gsettings set org.gnome.desktop.interface monospace-font-name ${FONT_NAME:-'Monospace'} ${FONT_SIZE:-'12'};
     };
 
     function InstallOhMyZsh()
@@ -487,11 +536,11 @@ sudo -v;
 
     #InstallGnomeUIUtilities  ; # DONE
     #InstallSteam             ; # DONE
-    InstallDiscord;
+    #InstallDiscord           ; # DONE
     #InstallVsCode            ; # DONE
     #InstallVirtualMachine    ; # DONE
     #InstallCodingEcosystem   ; # DONE
-    #InstallTerminalUtilities ;
+    InstallTerminalUtilities ;
 
     RemoveIncreaseSudoEffectiveness;
 #fi
