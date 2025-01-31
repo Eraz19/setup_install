@@ -96,7 +96,9 @@ function InstallDiscord()
 {
     function KillDiscordOnLoginWindow()
     {
-        while true;
+        local found=false
+
+        while ! $found;
         do
             xdotool search --onlyvisible --name "" | while read WIN_ID;
             do
@@ -105,16 +107,20 @@ function InstallDiscord()
                 if [[ -n "$WIN_NAME" && "$WIN_NAME" =~ discordapp\.com/app\?_=([0-9]+)\ -\ Discord ]];
                 then
                     pkill -f discord;
+                    found=true
                     echo "kill discord"
-                    #xdotool windowkill "$WIN_ID";
-                    break 2;  # Exit both the inner and outer loops
+                    break  # Exit inner loop
                 fi
             done
+
+            if $found; then
+                break  # Exit outer loop
+            fi
 
             sleep 2;
             echo "in loop"
         done
-    };
+    }
 
     echo "Installing Discord...";
 
