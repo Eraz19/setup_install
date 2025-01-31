@@ -120,7 +120,7 @@ function InstallDiscord()
     sudo dpkg -i discord.deb;
     sudo apt install -f -y;
 
-    nohup discord --no-sandbox &> /dev/null & KillDiscordOnLoginWindow;
+    discord &> /dev/null & disown; KillDiscordOnLoginWindow;
 };
 
 function InstallVsCode()
