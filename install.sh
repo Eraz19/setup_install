@@ -498,7 +498,8 @@ function InstallTerminalUtilities()
         sudo chmod +x /usr/local/bin/oh-my-posh;
         SettingOhMyPoshLaunching;
         InstallNerdFont;
-        gsettings set org.gnome.desktop.interface monospace-font-name ${FONT_NAME:-'Monospace'} ${FONT_SIZE:-'12'};
+        gsettings set org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:$(gsettings get org.gnome.Terminal.ProfilesList default | awk -F "'" '{print $2}')/ font "${FONT_NAME:-'Monospace'} ${FONT_SIZE:-'12'}";
+        gsettings set org.gnome.desktop.interface monospace-font-name ;
     };
 
     function InstallOhMyZsh()
