@@ -428,6 +428,21 @@ function InstallTerminalUtilities()
 
     function InstallOhMyPosh()
     {
+        function ChangeGnomeTerminalFont()
+        {
+            local font_name="${1:-'Monospace'}";
+            local font_size="${2:-'12'}";
+            local font="'${font_name} ${font_size}'";
+            local user_profile_id=$(gsettings get org.gnome.Terminal.ProfilesList default | tr -d "'");
+
+            if [ -z "$user_profile_id" ];
+            then
+                return 1;
+            fi
+
+            dconf write "/org/gnome/terminal/legacy/profiles:/:$user_profile_id/font" "$font";
+        };
+
         function InstallNerdFont()
         {
             local system_nerd_font_folder="$HOME/.local/share/fonts/NerdFonts";
@@ -448,6 +463,7 @@ function InstallTerminalUtilities()
                 'LiberationMono'
                 'UbuntuSans'
                 'CascadiaMono'
+                'Mononoki'
                 'FiraCode'
                 'Lilex'
                 'Ubuntu'
@@ -498,8 +514,7 @@ function InstallTerminalUtilities()
         sudo chmod +x /usr/local/bin/oh-my-posh;
         SettingOhMyPoshLaunching;
         InstallNerdFont;
-        gsettings set org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:$(gsettings get org.gnome.Terminal.ProfilesList default | awk -F "'" '{print $2}')/ font "${FONT_NAME:-'Monospace'} ${FONT_SIZE:-'12'}";
-        gsettings set org.gnome.desktop.interface monospace-font-name ;
+        ChangeGnomeTerminalFont $FONT_NAME $FONT_SIZE;
     };
 
     function InstallOhMyZsh()
@@ -514,7 +529,7 @@ function InstallTerminalUtilities()
 
         echo "Installing Oh-My-Zsh...";
 
-        sudo sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)";
+        sudo sh -vc "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)";
         InstallPlugins;
     };
 
