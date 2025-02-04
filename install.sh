@@ -430,12 +430,12 @@ function InstallTerminalUtilities()
     {
         function ChangeGnomeTerminalFont()
         {
-            local font_name="${1:-'Monospace'}";
-            local font_size="${2:-'12'}";
-            local font="'${font_name} ${font_size}'";
+            local font_name="${1:-Monospace}";
+            local font_size="${2:-12}";
+            local font="'\"${font_name} ${font_size}\"'";
             local user_profile_id=$(gsettings get org.gnome.Terminal.ProfilesList default | tr -d "'");
 
-            if [ -z "$user_profile_id" ];
+            if [ -z "$user_profile_id" ]; 
             then
                 return 1;
             fi
@@ -447,39 +447,39 @@ function InstallTerminalUtilities()
         {
             local system_nerd_font_folder="$HOME/.local/share/fonts/NerdFonts";
             local nerd_font_names=(
-                '0xProto'
-                'DepartureMono'
-                'ShareTechMono'
-                '3270'
-                'DroidSansMono'
-                'JetBrainsMono'  
-                'SourceCodePro'
-                'Agave'
-                'EnvyCodeR'
-                'Lekton'
-                'Terminus'
-                'AnonymousPro'
-                'FantasqueSansMono'
-                'LiberationMono'
-                'UbuntuSans'
-                'CascadiaMono'
+                #'0xProto'
+                #'DepartureMono'
+                #'ShareTechMono'
+                #'3270'
+                #'DroidSansMono'
+                #'JetBrainsMono'  
+                #'SourceCodePro'
+                #'Agave'
+                #'EnvyCodeR'
+                #'Lekton'
+                #'Terminus'
+                #'AnonymousPro'
+                #'FantasqueSansMono'
+                #'LiberationMono'
+                #'UbuntuSans'
+                #'CascadiaMono'
                 'Mononoki'
                 'FiraCode'
-                'Lilex'
-                'Ubuntu'
-                'CodeNewRoman'
-                'FiraMono'
-                'Meslo'
-                'VictorMono'
-                'CommitMono'
-                'GeistMono'
-                'Monaspace'
-                'Cousine'
-                'Gohu'
-                'Monoid'
-                'D2Coding'
-                'IBMPlexMono'
-                'MPlus'
+                #'Lilex'
+                #'Ubuntu'
+                #'CodeNewRoman'
+                #'FiraMono'
+                #'Meslo'
+                #'VictorMono'
+                #'CommitMono'
+                #'GeistMono'
+                #'Monaspace'
+                #'Cousine'
+                #'Gohu'
+                #'Monoid'
+                #'D2Coding'
+                #'IBMPlexMono'
+                #'MPlus'
             );
 
             mkdir -p $system_nerd_font_folder;
