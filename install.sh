@@ -432,7 +432,7 @@ function InstallTerminalUtilities()
         {
             local font_name="${1:-Monospace}";
             local font_size="${2:-12}";
-            local font="'\"${font_name} ${font_size}\"'";
+            local font="$font_name $font_size";
             local user_profile_id=$(gsettings get org.gnome.Terminal.ProfilesList default | tr -d "'");
 
             if [ -z "$user_profile_id" ]; 
@@ -440,7 +440,7 @@ function InstallTerminalUtilities()
                 return 1;
             fi
 
-            dconf write "/org/gnome/terminal/legacy/profiles:/:$user_profile_id/font" "$font";
+            dconf write "/org/gnome/terminal/legacy/profiles:/:$user_profile_id/font" "'$font'";
         };
 
         function InstallNerdFont()
