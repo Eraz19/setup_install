@@ -3,7 +3,7 @@
 
 function IncreaseSudoEffectiveness()
 {
-    echo "Defaults timestamp_timeout=60" | sudo tee -a /etc/sudoers.d/custom_sudo_timeout;
+    echo "Defaults timestamp_timeout=120" | sudo tee -a /etc/sudoers.d/custom_sudo_timeout;
 };
 function RemoveIncreaseSudoEffectiveness()
 {
