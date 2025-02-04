@@ -51,6 +51,7 @@ function SetZshConfigFile()
 function ChangeDefaultShellToZsh()
 {
     sudo chsh -s "$(which zsh)" "$USER";
+    exec zsh;
 };
 
 
@@ -438,7 +439,7 @@ function InstallTerminalUtilities()
             sudo git clone https://github.com/zsh-users/zsh-autosuggestions.git $ZSH_CUSTOM/plugins/zsh-autosuggestions;
             sudo git clone https://github.com/zsh-users/zsh-syntax-highlighting.git $ZSH_CUSTOM/plugins/zsh-syntax-highlighting;
 
-            SetZshConfigFile "plugins=(git zsh-autosuggestions zsh-syntax-highlighting)" "$PROJECT_ROOT/.zshrc";
+            SetZshConfigFile "plugins=(git zsh-autosuggestions zsh-syntax-highlighting)" 0;
         };
 
         echo "Installing Oh-My-Zsh...";
