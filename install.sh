@@ -432,7 +432,7 @@ function InstallTerminalUtilities()
         {
             local font_name="${1:-Monospace}";
             local font_size="${2:-12}";
-            local font="$font_name $font_size";
+            local font="'$font_name $font_size'";
             local user_profile_id=$(gsettings get org.gnome.Terminal.ProfilesList default | tr -d "'");
 
             if [ -z "$user_profile_id" ]; 
@@ -440,46 +440,46 @@ function InstallTerminalUtilities()
                 return 1;
             fi
 
-            dconf write "/org/gnome/terminal/legacy/profiles:/:$user_profile_id/font" "'$font'";
+            dconf write "/org/gnome/terminal/legacy/profiles:/:$user_profile_id/font" "$font";
         };
 
         function InstallNerdFont()
         {
             local system_nerd_font_folder="$HOME/.local/share/fonts/NerdFonts";
             local nerd_font_names=(
-                #'0xProto'
-                #'DepartureMono'
-                #'ShareTechMono'
-                #'3270'
-                #'DroidSansMono'
-                #'JetBrainsMono'  
-                #'SourceCodePro'
-                #'Agave'
-                #'EnvyCodeR'
-                #'Lekton'
-                #'Terminus'
-                #'AnonymousPro'
-                #'FantasqueSansMono'
-                #'LiberationMono'
-                #'UbuntuSans'
-                #'CascadiaMono'
+                '0xProto'
+                'DepartureMono'
+                'ShareTechMono'
+                '3270'
+                'DroidSansMono'
+                'JetBrainsMono'  
+                'SourceCodePro'
+                'Agave'
+                'EnvyCodeR'
+                'Lekton'
+                'Terminus'
+                'AnonymousPro'
+                'FantasqueSansMono'
+                'LiberationMono'
+                'UbuntuSans'
+                'CascadiaMono'
                 'Mononoki'
                 'FiraCode'
-                #'Lilex'
-                #'Ubuntu'
-                #'CodeNewRoman'
-                #'FiraMono'
-                #'Meslo'
-                #'VictorMono'
-                #'CommitMono'
-                #'GeistMono'
-                #'Monaspace'
-                #'Cousine'
-                #'Gohu'
-                #'Monoid'
-                #'D2Coding'
-                #'IBMPlexMono'
-                #'MPlus'
+                'Lilex'
+                'Ubuntu'
+                'CodeNewRoman'
+                'FiraMono'
+                'Meslo'
+                'VictorMono'
+                'CommitMono'
+                'GeistMono'
+                'Monaspace'
+                'Cousine'
+                'Gohu'
+                'Monoid'
+                'D2Coding'
+                'IBMPlexMono'
+                'MPlus'
             );
 
             mkdir -p $system_nerd_font_folder;
@@ -505,7 +505,7 @@ function InstallTerminalUtilities()
 
         function SettingOhMyPoshLaunching()
         {
-            SetZshConfigFile 'eval '$(oh-my-posh init zsh --config $PROJECT_ROOT_FOLDER/oh_my_posh/custom.omp.json)'' 0;
+            SetZshConfigFile "eval '\$(oh-my-posh init zsh --config $PROJECT_ROOT_FOLDER/oh_my_posh/custom.omp.json)'" 0;
         };
 
         echo "Installing Oh-My-Posh...";
@@ -514,7 +514,7 @@ function InstallTerminalUtilities()
         sudo chmod +x /usr/local/bin/oh-my-posh;
         SettingOhMyPoshLaunching;
         InstallNerdFont;
-        ChangeGnomeTerminalFont $FONT_NAME $FONT_SIZE;
+        ChangeGnomeTerminalFont "$FONT_NAME" "$FONT_SIZE";
     };
 
     function InstallOhMyZsh()
@@ -546,8 +546,8 @@ function InstallTerminalUtilities()
 
 sudo -v;
 
-#if CheckEnvVariables;
-#then
+if CheckEnvVariables;
+then
     IncreaseSudoEffectiveness;
 
     #InstallGnomeUIUtilities  ; # DONE
@@ -559,5 +559,5 @@ sudo -v;
     InstallTerminalUtilities ;
 
     RemoveIncreaseSudoEffectiveness;
-#fi
+fi
 
