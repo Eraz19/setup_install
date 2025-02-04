@@ -426,6 +426,22 @@ function InstallTerminalUtilities()
         SettingYaziAlias;
     };
 
+    function InstallOhMyZsh()
+    {
+        function InstallPlugins()
+        {
+            sudo git clone https://github.com/zsh-users/zsh-autosuggestions.git $ZSH_CUSTOM/plugins/zsh-autosuggestions;
+            sudo git clone https://github.com/zsh-users/zsh-syntax-highlighting.git $ZSH_CUSTOM/plugins/zsh-syntax-highlighting;
+
+            SetZshConfigFile "plugins=(git zsh-autosuggestions zsh-syntax-highlighting)" "$PROJECT_ROOT/.zshrc";
+        };
+
+        echo "Installing Oh-My-Zsh...";
+
+        sudo sh -vc "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)";
+        InstallPlugins;
+    };
+
     function InstallOhMyPosh()
     {
         function ChangeGnomeTerminalFont()
@@ -517,31 +533,15 @@ function InstallTerminalUtilities()
         ChangeGnomeTerminalFont "$FONT_NAME" "$FONT_SIZE";
     };
 
-    function InstallOhMyZsh()
-    {
-        function InstallPlugins()
-        {
-            sudo git clone https://github.com/zsh-users/zsh-autosuggestions.git $ZSH_CUSTOM/plugins/zsh-autosuggestions;
-            sudo git clone https://github.com/zsh-users/zsh-syntax-highlighting.git $ZSH_CUSTOM/plugins/zsh-syntax-highlighting;
-
-            SetZshConfigFile "plugins=(git zsh-autosuggestions zsh-syntax-highlighting)" "$PROJECT_ROOT/.zshrc";
-        };
-
-        echo "Installing Oh-My-Zsh...";
-
-        sudo sh -vc "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)";
-        InstallPlugins;
-    };
-
     InstallZsh      ;
-    InstallFzf      ;
-    InstallTheFuck  ;
-    InstallTree     ;
-    InstallBTop     ;
-    InstallNeofetch ;
-    InstallYazi     ;
+    #InstallFzf     ;
+    #InstallTheFuck ;
+    #InstallTree    ;
+    #InstallBTop    ;
+    #InstallNeofetch;
+    #InstallYazi    ;
+    InstallOhMyZsh  ;
     InstallOhMyPosh ;
-    #InstallOhMyZsh  ;
 };
 
 sudo -v;
