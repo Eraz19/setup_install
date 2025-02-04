@@ -48,6 +48,11 @@ function SetZshConfigFile()
     sudo printf '\n%s' "$1" | sed -E "s/^[[:space:]]{${2:-0}}//" | sudo tee -a "$PROJECT_ROOT_FOLDER/.zshrc" > /dev/null;
 };
 
+function ChangeDefaultShellToZsh()
+{
+    sudo chsh -s "$(which zsh)" "$USER";
+};
+
 
 function InstallGnomeUIUtilities()
 {
@@ -438,7 +443,8 @@ function InstallTerminalUtilities()
 
         echo "Installing Oh-My-Zsh...";
 
-        sudo sh -vc "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)";
+        CHSH=no RUNZSH=no sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)";
+        #sudo sh -vc "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)";
         InstallPlugins;
     };
 
@@ -533,15 +539,16 @@ function InstallTerminalUtilities()
         ChangeGnomeTerminalFont "$FONT_NAME" "$FONT_SIZE";
     };
 
-    InstallZsh      ;
-    #InstallFzf     ;
-    #InstallTheFuck ;
-    #InstallTree    ;
-    #InstallBTop    ;
-    #InstallNeofetch;
-    #InstallYazi    ;
-    InstallOhMyZsh  ;
-    InstallOhMyPosh ;
+    InstallZsh              ;
+    #InstallFzf             ;
+    #InstallTheFuck         ;
+    #InstallTree            ;
+    #InstallBTop            ;
+    #InstallNeofetch        ;
+    #InstallYazi            ;
+    InstallOhMyZsh          ;
+    InstallOhMyPosh         ;
+    ChangeDefaultShellToZsh ;
 };
 
 sudo -v;
