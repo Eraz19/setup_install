@@ -118,9 +118,10 @@ function InstallDiscord()
 
     echo "Installing Discord...";
 
-    sudo wget -O discord.deb "https://discord.com/api/download?platform=linux&format=deb";
+    sudo wget -O "$PROJECT_ROOT_FOLDER/discord.deb" "https://discord.com/api/download?platform=linux&format=deb";
     sudo dpkg -i discord.deb;
     sudo apt install -f -y;
+    sudo rm "$PROJECT_ROOT_FOLDER/discord.deb";
 
     discord &> /dev/null & disown;
     KillDiscordOnLoginWindow;
@@ -210,6 +211,56 @@ function InstallVsCode()
 
 function ConfigSystemSettings()
 {
+    function SettingPowerBehaviors()
+    {
+        dconf write org/gnome/settings-daemon/plugins/power/sleep-inactive-ac-timeout 0;
+        dconf write org/gnome/settings-daemon/plugins/power/sleep-inactive-ac-type "'nothing'";
+        dconf write org/gnome/settings-daemon/plugins/power/sleep-inactive-battery-type "'nothing'";
+        dconf write org/gnome/desktop/screensaver/lock-enabled "false";
+        dconf write org/gnome/desktop/screensaver/ubuntu-lock-on-suspend "false";
+        dconf write org/gnome/desktop/notifications/show-in-lock-screen "false";
+        dconf write org/gnome/desktop/session/idle-delay 0;
+    };
+
+    function SettingDesktopDock()
+    {
+        FormatGSettingIconsList()
+        {
+            local array=("$@");
+
+            printf -v formatted "'%s'," "${array[@]}";
+            echo "[${formatted%,}]";
+        };
+
+        local dock_icons=(
+            'pop-cosmic-applications.desktop'
+            'firefox.desktop'
+            'org.gnome.Terminal.desktop'
+            'code.desktop'
+            'steam.desktop'
+            'com.discordapp.Discord.desktop'
+            'gnome-control-center.desktop'
+        );
+
+        dconf write org/gnome/shell/extensions/dash-to-dock/manualhide "true";
+        dconf write org/gnome/shell/extensions/dash-to-dock/intellihide "true";
+        dconf write org/gnome/shell/extensions/dash-to-dock/dash-max-icon-size 35;
+        dconf write org/gnome/shell/extensions/dash-to-dock/extend-height "false";
+        dconf write org/gnome/shell/extensions/dash-to-dock/click-action "'minimize-or-previews'";
+        dconf write org/gnome/shell/extensions/dash-to-dock/dock-position "'BOTTOM'";
+        dconf write org/gnome/shell/extensions/dash-to-dock/dock-alignment "'CENTER'";
+        dconf write org/gnome/shell/favorite-apps "$(FormatGSettingIconsList "${dock_icons[@]}")";
+    };
+
+    function SettingDesktopTheme()
+    {
+        dconf write org/gnome/gedit/preferences/editor/scheme "'pop-dark'";
+        dconf write org/gnome/shell/extensions/pop-cosmic/show-workspaces-button "false";
+        dconf write org/gnome/shell/extensions/pop-cosmic/show-applications-button "false";
+        dconf write org/gnome/shell/extensions/pop-cosmic/clock-alignment "'CENTER'";
+        dconf write org/gnome/desktop/screensaver/picture-uri "'file:///usr/share/backgrounds/pop/nick-nazzaro-ice-cave.png'";
+    };
+
     function InstallGPUDRivers()
     {
         function InstallNvidiaDrivers()
@@ -291,55 +342,6 @@ function ConfigSystemSettings()
         fi
     };
 
-    function SettingDesktopDock()
-    {
-        FormatGSettingIconsList()
-        {
-            local array=("$@");
-
-            printf -v formatted "'%s'," "${array[@]}";
-            echo "[${formatted%,}]";
-        };
-
-        local dock_icons=(
-            'pop-cosmic-applications.desktop'
-            'firefox.desktop'
-            'org.gnome.Terminal.desktop'
-            'code.desktop'
-            'steam.desktop'
-            'com.discordapp.Discord.desktop'
-            'gnome-control-center.desktop'
-        );
-
-        gsettings set org.gnome.shell.extensions.dash-to-dock.manualhide "true";
-        gsettings set org.gnome.shell.extensions.dash-to-dock.intellihide "true";
-        gsettings set org.gnome.shell.extensions.dash-to-dock.dash-max-icon-size 35;
-        gsettings set org.gnome.shell.extensions.dash-to-dock.extend-height "false";
-        gsettings set org.gnome.shell.extensions.dash-to-dock.click-action "'minimize-or-previews'";
-        gsettings set org.gnome.shell.extensions.dash-to-dock.dock-position "'BOTTOM'";
-        gsettings set org.gnome.shell.extensions.dash-to-dock.dock-alignment "'CENTER'";
-        gsettings set org.gnome.shell.favorite-apps "$(FormatGSettingIconsList "${dock_icons[@]}")";
-    };
-
-    function SettingDesktopTheme()
-    {
-        gsettings set org.gnome.gedit.preferences.editor.scheme "'pop-dark'";
-        gsettings set org.gnome.shell.extensions.pop-cosmic.show-workspaces-button "false";
-        gsettings set org.gnome.shell.extensions.pop-cosmic.show-applications-button "false";
-        gsettings set org.gnome.shell.extensions.pop-cosmic.clock-alignment "'CENTER'";
-        gsettings set org.gnome.desktop.screensaver.picture-uri "'file:///usr/share/backgrounds/pop/nick-nazzaro-ice-cave.png'";
-    };
-
-    function SettingPowerBehaviors()
-    {
-        gsettings set org.gnome.settings-daemon.plugins.power.sleep-inactive-ac-timeout 0;
-        gsettings set org.gnome.settings-daemon.plugins.power.sleep-inactive-ac-type "'nothing'";
-        gsettings set org.gnome.settings-daemon.plugins.power.sleep-inactive-battery-type "'nothing'";
-        gsettings set org.gnome.desktop.screensaver.lock-enabled "false";
-        gsettings set org.gnome.desktop.screensaver.ubuntu-lock-on-suspend "false";
-        gsettings set org.gnome.desktop.notifications.show-in-lock-screen "false";
-        gsettings set org.gnome.desktop.session idle-delay 0;
-    };
 
     SettingPowerBehaviors ;
     SettingDesktopDock    ;
