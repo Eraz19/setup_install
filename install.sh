@@ -621,7 +621,7 @@ function InstallTerminalUtilities()
 
         function SettingOhMyPoshLaunching()
         {
-            SetZshConfigFile "eval '\$(oh-my-posh init zsh --config $PROJECT_ROOT_FOLDER/oh_my_posh/custom.omp.json)'" 0;
+            SetZshConfigFile "eval "\$(oh-my-posh init zsh --config $PROJECT_ROOT_FOLDER/oh_my_posh/custom.omp.json)"" 0;
         };
 
         echo "Installing Oh-My-Posh...";
@@ -629,8 +629,8 @@ function InstallTerminalUtilities()
         sudo wget https://github.com/JanDeDobbeleer/oh-my-posh/releases/latest/download/posh-linux-amd64 -O /usr/local/bin/oh-my-posh;
         sudo chmod +x /usr/local/bin/oh-my-posh;
         SettingOhMyPoshLaunching;
-        InstallNerdFont;
-        ChangeGnomeTerminalFont "$FONT_NAME" "$FONT_SIZE";
+        #InstallNerdFont;
+        #ChangeGnomeTerminalFont "$FONT_NAME" "$FONT_SIZE";
     };
 
     function ChangeDefaultShellToZsh()
