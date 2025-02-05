@@ -528,15 +528,19 @@ function InstallTerminalUtilities()
     {
         function InstallPlugins()
         {
+            function SettingSourceZshPlugins()
+            {
+                SetZshConfigFile '
+                    source $HOME/.oh-my-zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
+                    source $HOME/.oh-my-zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+                ' 20;
+            };
+
             sudo git clone https://github.com/zsh-users/zsh-autosuggestions.git $HOME/.oh-my-zsh/plugins/zsh-autosuggestions;
             sudo git clone https://github.com/zsh-users/zsh-syntax-highlighting.git $HOME/.oh-my-zsh/plugins/zsh-syntax-highlighting;
 
-            SetZshConfigFile "
-                plugins=(git zsh-autosuggestions zsh-syntax-highlighting)
-
-                source $HOME/.oh-my-zsh/plugins/zsh-autosuggestions
-                source $HOME/.oh-my-zsh/plugins/zsh-syntax-highlighting
-            " 16;
+            SetZshConfigFile "plugins=(git zsh-autosuggestions zsh-syntax-highlighting)" 0;
+            SettingSourceZshPlugins;
         };
 
         echo "Installing Oh-My-Zsh...";
