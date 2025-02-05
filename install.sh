@@ -636,8 +636,8 @@ function InstallTerminalUtilities()
     function ChangeDefaultShellToZsh()
     {
         sudo chsh -s "$(which zsh)" "$USER";
-        source "$HOME/.zshrc";
         exec zsh;
+        source "$HOME/.zshrc";
     };
 
     InstallZsh              ;
