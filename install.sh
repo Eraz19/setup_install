@@ -563,39 +563,39 @@ function InstallTerminalUtilities()
         {
             local system_nerd_font_folder="$HOME/.local/share/fonts/NerdFonts";
             local nerd_font_names=(
-                '0xProto'
-                'DepartureMono'
-                'ShareTechMono'
-                '3270'
-                'DroidSansMono'
-                'JetBrainsMono'  
-                'SourceCodePro'
-                'Agave'
-                'EnvyCodeR'
-                'Lekton'
-                'Terminus'
-                'AnonymousPro'
-                'FantasqueSansMono'
-                'LiberationMono'
-                'UbuntuSans'
-                'CascadiaMono'
+                #'0xProto'
+                #'DepartureMono'
+                #'ShareTechMono'
+                #'3270'
+                #'DroidSansMono'
+                #'JetBrainsMono'  
+                #'SourceCodePro'
+                #'Agave'
+                #'EnvyCodeR'
+                #'Lekton'
+                #'Terminus'
+                #'AnonymousPro'
+                #'FantasqueSansMono'
+                #'LiberationMono'
+                #'UbuntuSans'
+                #'CascadiaMono'
                 'Mononoki'
-                'FiraCode'
-                'Lilex'
-                'Ubuntu'
-                'CodeNewRoman'
-                'FiraMono'
-                'Meslo'
-                'VictorMono'
-                'CommitMono'
-                'GeistMono'
-                'Monaspace'
-                'Cousine'
-                'Gohu'
-                'Monoid'
-                'D2Coding'
-                'IBMPlexMono'
-                'MPlus'
+                #'FiraCode'
+                #'Lilex'
+                #'Ubuntu'
+                #'CodeNewRoman'
+                #'FiraMono'
+                #'Meslo'
+                #'VictorMono'
+                #'CommitMono'
+                #'GeistMono'
+                #'Monaspace'
+                #'Cousine'
+                #'Gohu'
+                #'Monoid'
+                #'D2Coding'
+                #'IBMPlexMono'
+                #'MPlus'
             );
 
             mkdir -p $system_nerd_font_folder;
@@ -641,12 +641,12 @@ function InstallTerminalUtilities()
     };
 
     InstallZsh              ;
-    InstallFzf              ;
-    InstallTheFuck          ;
-    InstallTree             ;
-    InstallBTop             ;
-    InstallNeofetch         ;
-    InstallYazi             ;
+    #InstallFzf              ;
+    #InstallTheFuck          ;
+    #InstallTree             ;
+    #InstallBTop             ;
+    #InstallNeofetch         ;
+    #InstallYazi             ;
     InstallOhMyZsh          ;
     InstallOhMyPosh         ;
     ChangeDefaultShellToZsh ;
