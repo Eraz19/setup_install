@@ -147,8 +147,9 @@ function ConfigSystemSettings()
     };
 
     dconf write /org/gnome/settings-daemon/plugins/power/sleep-inactive-ac-timeout 0;
-    dconf write /org/gnome/settings-daemon/plugins/power/sleep-inactive-ac-type "'nothing'";
-    dconf write /org/gnome/settings-daemon/plugins/power/sleep-inactive-battery-type "'nothing'";
+    dconf write /org/gnome/settings-daemon/plugins/power/sleep-inactive-ac-type 'nothing';
+    dconf write /org/gnome/settings-daemon/plugins/power/sleep-inactive-battery-type 'nothing';
+    dconf write /org/gnome/desktop/session/idle-delay 'uint32 0';
 
     InstallGPUDRivers;
 };
@@ -476,6 +477,7 @@ function InstallTerminalUtilities()
         echo "Installing Zsh...";
 
         sudo apt install -y zsh;
+
         sudo ln -s $PROJECT_ROOT_FOLDER/.zshrc $HOME/.zshrc;
     };
     
@@ -645,9 +647,9 @@ function InstallTerminalUtilities()
     #InstallBTop            ;
     #InstallNeofetch        ;
     #InstallYazi            ;
-    InstallOhMyZsh          ;
-    InstallOhMyPosh         ;
-    ChangeDefaultShellToZsh ;
+    #InstallOhMyZsh          ;
+    #InstallOhMyPosh         ;
+    #ChangeDefaultShellToZsh ;
 };
 
 sudo -v;
