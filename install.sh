@@ -648,12 +648,12 @@ function InstallTerminalUtilities()
     };
 
     InstallZsh              ;
-    #InstallFzf              ;
-    #InstallTheFuck          ;
-    #InstallTree             ;
-    #InstallBTop             ;
-    #InstallNeofetch         ;
-    #InstallYazi             ;
+    InstallFzf              ;
+    InstallTheFuck          ;
+    InstallTree             ;
+    InstallBTop             ;
+    InstallNeofetch         ;
+    InstallYazi             ;
     InstallOhMyZsh          ;
     InstallOhMyPosh         ;
     ChangeDefaultShellToZsh ;
@@ -665,13 +665,13 @@ if CheckEnvVariables;
 then
     IncreaseSudoEffectiveness;
 
-    #ConfigSystemSettings    ; # DONE
-    #InstallGnomeUIUtilities ; # DONE
-    #InstallSteam            ; # DONE
-    #InstallDiscord          ; # DONE
-    #InstallVsCode           ; # DONE
-    #InstallVirtualMachine   ; # DONE
-    #InstallCodingEcosystem  ; # DONE
+    ConfigSystemSettings     ;
+    InstallGnomeUIUtilities  ;
+    InstallSteam             ;
+    InstallDiscord           ;
+    InstallVsCode            ;
+    InstallVirtualMachine    ;
+    InstallCodingEcosystem   ;
     InstallTerminalUtilities ;
 
     RemoveIncreaseSudoEffectiveness;
