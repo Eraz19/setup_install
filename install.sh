@@ -621,7 +621,7 @@ function InstallTerminalUtilities()
 
         function SettingOhMyPoshLaunching()
         {
-            SetZshConfigFile "eval "\$(oh-my-posh init zsh --config $PROJECT_ROOT_FOLDER/oh_my_posh/custom.omp.json)"" 0;
+            SetZshConfigFile "eval \"\$(oh-my-posh init zsh --config $PROJECT_ROOT_FOLDER/oh_my_posh/custom.omp.json)\"" 0;
         };
 
         echo "Installing Oh-My-Posh...";
