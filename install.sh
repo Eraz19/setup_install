@@ -647,7 +647,7 @@ function InstallTerminalUtilities()
     #InstallBTop            ;
     #InstallNeofetch        ;
     #InstallYazi            ;
-    #InstallOhMyZsh          ;
+    InstallOhMyZsh          ;
     #InstallOhMyPosh         ;
     #ChangeDefaultShellToZsh ;
 };
