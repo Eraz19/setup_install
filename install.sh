@@ -147,8 +147,8 @@ function ConfigSystemSettings()
     };
 
     dconf write /org/gnome/settings-daemon/plugins/power/sleep-inactive-ac-timeout 0;
-    dconf write /org/gnome/settings-daemon/plugins/power/sleep-inactive-ac-type 'nothing';
-    dconf write /org/gnome/settings-daemon/plugins/power/sleep-inactive-battery-type 'nothing';
+    dconf write /org/gnome/settings-daemon/plugins/power/sleep-inactive-ac-type "'nothing'";
+    dconf write /org/gnome/settings-daemon/plugins/power/sleep-inactive-battery-type "'nothing'";
     gsettings set org.gnome.desktop.session idle-delay 0;
 
     InstallGPUDRivers;
