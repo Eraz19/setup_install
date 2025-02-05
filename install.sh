@@ -477,8 +477,6 @@ function InstallTerminalUtilities()
         echo "Installing Zsh...";
 
         sudo apt install -y zsh;
-        sudo rm $HOME/.zshrc;
-        sudo ln -s $PROJECT_ROOT_FOLDER/.zshrc $HOME/.zshrc;
     };
     
     function InstallFzf()
@@ -545,7 +543,8 @@ function InstallTerminalUtilities()
         echo "Installing Oh-My-Zsh...";
 
         CHSH=no RUNZSH=no sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)";
-        #sudo sh -vc "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)";
+        sudo rm $HOME/.zshrc;
+        sudo ln -s $PROJECT_ROOT_FOLDER/.zshrc $HOME/.zshrc;
         InstallPlugins;
     };
 
