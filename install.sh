@@ -531,7 +531,12 @@ function InstallTerminalUtilities()
             sudo git clone https://github.com/zsh-users/zsh-autosuggestions.git $HOME/.oh-my-zsh/plugins/zsh-autosuggestions;
             sudo git clone https://github.com/zsh-users/zsh-syntax-highlighting.git $HOME/.oh-my-zsh/plugins/zsh-syntax-highlighting;
 
-            SetZshConfigFile "plugins=(git zsh-autosuggestions zsh-syntax-highlighting)" 0;
+            SetZshConfigFile "
+                plugins=(git zsh-autosuggestions zsh-syntax-highlighting)
+
+                source $HOME/.oh-my-zsh/plugins/zsh-autosuggestions
+                source $HOME/.oh-my-zsh/plugins/zsh-syntax-highlighting
+            " 16;
         };
 
         echo "Installing Oh-My-Zsh...";
@@ -636,8 +641,6 @@ function InstallTerminalUtilities()
     function ChangeDefaultShellToZsh()
     {
         sudo chsh -s "$(which zsh)" "$USER";
-        #exec zsh;
-        #source "$HOME/.zshrc";
     };
 
     InstallZsh              ;
@@ -668,4 +671,5 @@ then
     InstallTerminalUtilities ;
 
     RemoveIncreaseSudoEffectiveness;
+    gnome-session-quit --logout --no-prompt;
 fi
