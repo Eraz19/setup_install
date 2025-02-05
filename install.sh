@@ -55,6 +55,104 @@ function ChangeDefaultShellToZsh()
 };
 
 
+function ConfigSystemSettings()
+{
+    function InstallNvidiaDrivers()
+    {
+        echo "🚀 Installing NVIDIA drivers...";
+
+        sudo add-apt-repository -y ppa:graphics-drivers/ppa;
+        sudo apt update;
+
+        local nvidia_driver=$(ubuntu-drivers devices | awk '/recommended/ {print $3}');
+
+        if [[ -z "$nvidia_driver" ]];
+        then
+            local nvidia_driver=$(ubuntu-drivers devices | grep -oP 'nvidia-driver-\d+' | head -n 1);
+        fi
+
+        if [[ -n "$nvidia_driver" ]];
+        then
+            echo "✅ Installing $nvidia_driver...";
+            sudo apt install -y "$nvidia_driver";
+
+            echo "⚙️  Switching to NVIDIA GPU...";
+            sudo prime-select nvidia;
+
+            echo "🔄 Updating initramfs...";
+            sudo update-initramfs -u;
+
+            echo "✅ NVIDIA driver installed successfully! Please reboot to apply changes.";
+        else
+            echo "No recommended NVIDIA driver found!";
+        fi
+    };
+
+    function InstallAMDDrivers()
+    {
+        echo "🚀 Installing AMD drivers...";
+
+        sudo apt -y install mesa-utils;
+        sudo apt update;
+
+        local amd_driver=$(ubuntu-drivers devices | awk '/recommended/ {print $3}');
+
+        if [[ -z "$amd_driver" ]];
+        then
+            sudo apt install -y mesa-utils mesa-vulkan-drivers xserver-xorg-video-amdgpu;
+        else
+            echo "✅ Installing $amd_driver...";
+            sudo apt install -y "$amd_driver";
+        fi
+
+        local current_gpu=$(glxinfo | grep "OpenGL renderer string" | awk -F': ' '{print $2}');
+
+        if [[ "$current_gpu" == *"llvmpipe"* ]];
+        then    
+            sudo modprobe amdgpu;
+
+            echo 'export DRI_PRIME=1' | sudo tee -a /etc/environment > /dev/null;            
+            echo "✅ AMD GPU is now set as the primary renderer. Please reboot to apply changes.";
+        else
+            echo "✅ AMD GPU is already in use: $current_gpu";
+        fi
+    };
+
+    function InstallGPUDRivers()
+    {
+        echo "🔍 Detecting GPU...";
+
+        # Use a more robust lspci command that works even without drivers
+        GPU_VENDOR=$(lspci -v | egrep -i 'vga|3d|2d' | awk '{print $5}' | head -n 1)
+
+        if [[ -z "$GPU_VENDOR" ]]; then
+            echo "No GPU detected! Skipping driver installation..."
+            return 1
+        fi
+
+        echo "🖥  Detected GPU Vendor: $GPU_VENDOR"
+
+        if [[ "$GPU_VENDOR" =~ .*NVIDIA.* ]];
+        then
+            InstallNvidiaDrivers;
+        elif [[ "$GPU_VENDOR" =~ .*AMD.* ]];
+        then
+            InstallAMDDrivers;
+        else
+            echo "Unsupported GPU vendor detected!";
+            return 1;
+        fi
+
+        echo "✅ GPU driver installation complete!";
+    };
+
+    dconf write /org/gnome/settings-daemon/plugins/power/sleep-inactive-ac-timeout 0;
+    dconf write /org/gnome/settings-daemon/plugins/power/sleep-inactive-ac-type "'nothing'";
+    dconf write /org/gnome/settings-daemon/plugins/power/sleep-inactive-battery-type "'nothing'";
+
+    InstallGPUDRivers;
+};
+
 function InstallGnomeUIUtilities()
 {
     function InstallTweaks()
@@ -558,6 +656,7 @@ if CheckEnvVariables;
 then
     IncreaseSudoEffectiveness;
 
+    ConfigSystemSettings;
     #InstallGnomeUIUtilities  ; # DONE
     #InstallSteam             ; # DONE
     #InstallDiscord           ; # DONE
