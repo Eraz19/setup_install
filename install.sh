@@ -528,8 +528,8 @@ function InstallTerminalUtilities()
     {
         function InstallPlugins()
         {
-            sudo git clone https://github.com/zsh-users/zsh-autosuggestions.git $ZSH_CUSTOM/plugins/zsh-autosuggestions;
-            sudo git clone https://github.com/zsh-users/zsh-syntax-highlighting.git $ZSH_CUSTOM/plugins/zsh-syntax-highlighting;
+            sudo git clone https://github.com/zsh-users/zsh-autosuggestions.git $HOME/.oh-my-zsh/plugins/zsh-autosuggestions;
+            sudo git clone https://github.com/zsh-users/zsh-syntax-highlighting.git $HOME/.oh-my-zsh/plugins/zsh-syntax-highlighting;
 
             SetZshConfigFile "plugins=(git zsh-autosuggestions zsh-syntax-highlighting)" 0;
         };
@@ -629,8 +629,8 @@ function InstallTerminalUtilities()
         sudo wget https://github.com/JanDeDobbeleer/oh-my-posh/releases/latest/download/posh-linux-amd64 -O /usr/local/bin/oh-my-posh;
         sudo chmod +x /usr/local/bin/oh-my-posh;
         SettingOhMyPoshLaunching;
-        #InstallNerdFont;
-        #ChangeGnomeTerminalFont "$FONT_NAME" "$FONT_SIZE";
+        InstallNerdFont;
+        ChangeGnomeTerminalFont "$FONT_NAME" "$FONT_SIZE";
     };
 
     function ChangeDefaultShellToZsh()
