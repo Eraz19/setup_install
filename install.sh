@@ -636,6 +636,7 @@ function InstallTerminalUtilities()
     function ChangeDefaultShellToZsh()
     {
         sudo chsh -s "$(which zsh)" "$USER";
+        source "$HOME/.zshrc";
         exec zsh;
     };
 
@@ -657,7 +658,7 @@ if CheckEnvVariables;
 then
     IncreaseSudoEffectiveness;
 
-    #ConfigSystemSettings    ;
+    #ConfigSystemSettings    ; # DONE
     #InstallGnomeUIUtilities ; # DONE
     #InstallSteam            ; # DONE
     #InstallDiscord          ; # DONE
