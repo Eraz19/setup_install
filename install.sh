@@ -556,6 +556,8 @@ function InstallTerminalUtilities()
                 return 1;
             fi
 
+            echo "dconf write "/org/gnome/terminal/legacy/profiles:/:$user_profile_id/font" "$font";"
+
             dconf write "/org/gnome/terminal/legacy/profiles:/:$user_profile_id/font" "$font";
         };
 
