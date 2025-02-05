@@ -556,8 +556,6 @@ function InstallTerminalUtilities()
                 return 1;
             fi
 
-            echo "dconf write "/org/gnome/terminal/legacy/profiles:/:$user_profile_id/font" "$font";"
-
             dconf write "/org/gnome/terminal/legacy/profiles:/:$user_profile_id/font" "$font";
         };
 
@@ -638,8 +636,8 @@ function InstallTerminalUtilities()
     function ChangeDefaultShellToZsh()
     {
         sudo chsh -s "$(which zsh)" "$USER";
-        exec zsh;
-        source "$HOME/.zshrc";
+        #exec zsh;
+        #source "$HOME/.zshrc";
     };
 
     InstallZsh              ;
