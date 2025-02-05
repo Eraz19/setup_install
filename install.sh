@@ -48,12 +48,6 @@ function SetZshConfigFile()
     sudo printf '\n%s' "$1" | sed -E "s/^[[:space:]]{${2:-0}}//" | sudo tee -a "$PROJECT_ROOT_FOLDER/.zshrc" > /dev/null;
 };
 
-function ChangeDefaultShellToZsh()
-{
-    sudo chsh -s "$(which zsh)" "$USER";
-    exec zsh;
-};
-
 
 function ConfigSystemSettings()
 {
@@ -639,16 +633,22 @@ function InstallTerminalUtilities()
         ChangeGnomeTerminalFont "$FONT_NAME" "$FONT_SIZE";
     };
 
+    function ChangeDefaultShellToZsh()
+    {
+        sudo chsh -s "$(which zsh)" "$USER";
+        exec zsh;
+    };
+
     InstallZsh              ;
-    #InstallFzf             ;
-    #InstallTheFuck         ;
-    #InstallTree            ;
-    #InstallBTop            ;
-    #InstallNeofetch        ;
-    #InstallYazi            ;
+    InstallFzf              ;
+    InstallTheFuck          ;
+    InstallTree             ;
+    InstallBTop             ;
+    InstallNeofetch         ;
+    InstallYazi             ;
     InstallOhMyZsh          ;
-    #InstallOhMyPosh         ;
-    #ChangeDefaultShellToZsh ;
+    InstallOhMyPosh         ;
+    ChangeDefaultShellToZsh ;
 };
 
 sudo -v;
@@ -657,15 +657,14 @@ if CheckEnvVariables;
 then
     IncreaseSudoEffectiveness;
 
-    ConfigSystemSettings;
-    #InstallGnomeUIUtilities  ; # DONE
-    #InstallSteam             ; # DONE
-    #InstallDiscord           ; # DONE
-    #InstallVsCode            ; # DONE
-    #InstallVirtualMachine    ; # DONE
-    #InstallCodingEcosystem   ; # DONE
+    #ConfigSystemSettings    ;
+    #InstallGnomeUIUtilities ; # DONE
+    #InstallSteam            ; # DONE
+    #InstallDiscord          ; # DONE
+    #InstallVsCode           ; # DONE
+    #InstallVirtualMachine   ; # DONE
+    #InstallCodingEcosystem  ; # DONE
     InstallTerminalUtilities ;
 
     RemoveIncreaseSudoEffectiveness;
 fi
-
