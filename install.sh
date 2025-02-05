@@ -49,105 +49,6 @@ function SetZshConfigFile()
 };
 
 
-function ConfigSystemSettings()
-{
-    function InstallNvidiaDrivers()
-    {
-        echo "🚀 Installing NVIDIA drivers...";
-
-        sudo add-apt-repository -y ppa:graphics-drivers/ppa;
-        sudo apt update;
-
-        local nvidia_driver=$(ubuntu-drivers devices | awk '/recommended/ {print $3}');
-
-        if [[ -z "$nvidia_driver" ]];
-        then
-            local nvidia_driver=$(ubuntu-drivers devices | grep -oP 'nvidia-driver-\d+' | head -n 1);
-        fi
-
-        if [[ -n "$nvidia_driver" ]];
-        then
-            echo "✅ Installing $nvidia_driver...";
-            sudo apt install -y "$nvidia_driver";
-
-            echo "⚙️  Switching to NVIDIA GPU...";
-            sudo prime-select nvidia;
-
-            echo "🔄 Updating initramfs...";
-            sudo update-initramfs -u;
-
-            echo "✅ NVIDIA driver installed successfully! Please reboot to apply changes.";
-        else
-            echo "No recommended NVIDIA driver found!";
-        fi
-    };
-
-    function InstallAMDDrivers()
-    {
-        echo "🚀 Installing AMD drivers...";
-
-        sudo apt -y install mesa-utils;
-        sudo apt update;
-
-        local amd_driver=$(ubuntu-drivers devices | awk '/recommended/ {print $3}');
-
-        if [[ -z "$amd_driver" ]];
-        then
-            sudo apt install -y mesa-utils mesa-vulkan-drivers xserver-xorg-video-amdgpu;
-        else
-            echo "✅ Installing $amd_driver...";
-            sudo apt install -y "$amd_driver";
-        fi
-
-        local current_gpu=$(glxinfo | grep "OpenGL renderer string" | awk -F': ' '{print $2}');
-
-        if [[ "$current_gpu" == *"llvmpipe"* ]];
-        then    
-            sudo modprobe amdgpu;
-
-            echo 'export DRI_PRIME=1' | sudo tee -a /etc/environment > /dev/null;            
-            echo "✅ AMD GPU is now set as the primary renderer. Please reboot to apply changes.";
-        else
-            echo "✅ AMD GPU is already in use: $current_gpu";
-        fi
-    };
-
-    function InstallGPUDRivers()
-    {
-        echo "🔍 Detecting GPU...";
-
-        # Use a more robust lspci command that works even without drivers
-        GPU_VENDOR=$(lspci -v | egrep -i 'vga|3d|2d' | awk '{print $5}' | head -n 1)
-
-        if [[ -z "$GPU_VENDOR" ]]; then
-            echo "No GPU detected! Skipping driver installation..."
-            return 1
-        fi
-
-        echo "🖥  Detected GPU Vendor: $GPU_VENDOR"
-
-        if [[ "$GPU_VENDOR" =~ .*NVIDIA.* ]];
-        then
-            InstallNvidiaDrivers;
-        elif [[ "$GPU_VENDOR" =~ .*AMD.* ]];
-        then
-            InstallAMDDrivers;
-        else
-            echo "Unsupported GPU vendor detected!";
-            return 1;
-        fi
-
-        echo "✅ GPU driver installation complete!";
-    };
-
-    dconf write /org/gnome/settings-daemon/plugins/power/sleep-inactive-ac-timeout 0;
-    dconf write /org/gnome/settings-daemon/plugins/power/sleep-inactive-ac-type "'nothing'";
-    dconf write /org/gnome/settings-daemon/plugins/power/sleep-inactive-battery-type "'nothing'";
-    gsettings set org.gnome.desktop.session idle-delay 0;
-
-    InstallGPUDRivers;
-};
-
 function InstallGnomeUIUtilities()
 {
     function InstallTweaks()
@@ -181,7 +82,6 @@ function InstallSteam()
     sudo add-apt-repository multiverse -y;
     sudo apt install -y steam;
 
-    # Run first update in the background
     nohup steam steam://open/install &> /dev/null & KillSteamOnLoginWindow;
 };
 
@@ -306,6 +206,145 @@ function InstallVsCode()
     InstallSoftware          ;
     InstallExtensions        ;
     SettingKeyboardShortcuts ;
+};
+
+function ConfigSystemSettings()
+{
+    function InstallGPUDRivers()
+    {
+        function InstallNvidiaDrivers()
+        {
+            echo "🚀 Installing NVIDIA drivers...";
+
+            sudo add-apt-repository -y ppa:graphics-drivers/ppa;
+            sudo apt update;
+
+            local nvidia_driver=$(ubuntu-drivers devices | awk '/recommended/ {print $3}');
+
+            if [[ -z "$nvidia_driver" ]];
+            then
+                local nvidia_driver=$(ubuntu-drivers devices | grep -oP 'nvidia-driver-\d+' | head -n 1);
+            fi
+
+            if [[ -n "$nvidia_driver" ]];
+            then
+                echo "✅ Installing $nvidia_driver...";
+                sudo apt install -y "$nvidia_driver";
+
+                echo "⚙️  Switching to NVIDIA GPU...";
+                sudo prime-select nvidia;
+
+                echo "🔄 Updating initramfs...";
+                sudo update-initramfs -u;
+
+                echo "✅ NVIDIA driver installed successfully! Please reboot to apply changes.";
+            else
+                echo "No recommended NVIDIA driver found!";
+            fi
+        };
+
+        function InstallAMDDrivers()
+        {
+            echo "🚀 Installing AMD drivers...";
+
+            sudo apt -y install mesa-utils;
+            sudo apt update;
+
+            local amd_driver=$(ubuntu-drivers devices | awk '/recommended/ {print $3}');
+
+            if [[ -z "$amd_driver" ]];
+            then
+                sudo apt install -y mesa-utils mesa-vulkan-drivers xserver-xorg-video-amdgpu;
+            else
+                echo "✅ Installing $amd_driver...";
+                sudo apt install -y "$amd_driver";
+            fi
+
+            local current_gpu=$(glxinfo | grep "OpenGL renderer string" | awk -F': ' '{print $2}');
+
+            if [[ "$current_gpu" == *"llvmpipe"* ]];
+            then    
+                sudo modprobe amdgpu;
+
+                echo 'export DRI_PRIME=1' | sudo tee -a /etc/environment > /dev/null;            
+                echo "✅ AMD GPU is now set as the primary renderer. Please reboot to apply changes.";
+            else
+                echo "✅ AMD GPU is already in use: $current_gpu";
+            fi
+        };
+
+        local gpu_vendor=$(lspci -v | egrep -i 'vga|3d|2d' | awk '{print $5}' | head -n 1);
+
+        if [[ -z "$gpu_vendor" ]];
+        then
+            return 1;
+        fi
+
+        if [[ "$gpu_vendor" =~ .*NVIDIA.* ]];
+        then
+            InstallNvidiaDrivers;
+        elif [[ "$gpu_vendor" =~ .*AMD.* ]];
+        then
+            InstallAMDDrivers;
+        else
+            return 1;
+        fi
+    };
+
+    function SettingDesktopDock()
+    {
+        FormatGSettingIconsList()
+        {
+            local array=("$@");
+
+            printf -v formatted "'%s'," "${array[@]}";
+            echo "[${formatted%,}]";
+        };
+
+        local dock_icons=(
+            'pop-cosmic-applications.desktop'
+            'firefox.desktop'
+            'org.gnome.Terminal.desktop'
+            'code.desktop'
+            'steam.desktop'
+            'com.discordapp.Discord.desktop'
+            'gnome-control-center.desktop'
+        );
+
+        gsettings set org.gnome.shell.extensions.dash-to-dock.manualhide "true";
+        gsettings set org.gnome.shell.extensions.dash-to-dock.intellihide "true";
+        gsettings set org.gnome.shell.extensions.dash-to-dock.dash-max-icon-size 35;
+        gsettings set org.gnome.shell.extensions.dash-to-dock.extend-height "false";
+        gsettings set org.gnome.shell.extensions.dash-to-dock.click-action "'minimize-or-previews'";
+        gsettings set org.gnome.shell.extensions.dash-to-dock.dock-position "'BOTTOM'";
+        gsettings set org.gnome.shell.extensions.dash-to-dock.dock-alignment "'CENTER'";
+        gsettings set org.gnome.shell.favorite-apps "$(FormatGSettingIconsList "${dock_icons[@]}")";
+    };
+
+    function SettingDesktopTheme()
+    {
+        gsettings set org.gnome.gedit.preferences.editor.scheme "'pop-dark'";
+        gsettings set org.gnome.shell.extensions.pop-cosmic.show-workspaces-button "false";
+        gsettings set org.gnome.shell.extensions.pop-cosmic.show-applications-button "false";
+        gsettings set org.gnome.shell.extensions.pop-cosmic.clock-alignment "'CENTER'";
+        gsettings set org.gnome.desktop.screensaver.picture-uri "'file:///usr/share/backgrounds/pop/nick-nazzaro-ice-cave.png'";
+    };
+
+    function SettingPowerBehaviors()
+    {
+        gsettings set org.gnome.settings-daemon.plugins.power.sleep-inactive-ac-timeout 0;
+        gsettings set org.gnome.settings-daemon.plugins.power.sleep-inactive-ac-type "'nothing'";
+        gsettings set org.gnome.settings-daemon.plugins.power.sleep-inactive-battery-type "'nothing'";
+        gsettings set org.gnome.desktop.screensaver.lock-enabled "false";
+        gsettings set org.gnome.desktop.screensaver.ubuntu-lock-on-suspend "false";
+        gsettings set org.gnome.desktop.notifications.show-in-lock-screen "false";
+        gsettings set org.gnome.desktop.session idle-delay 0;
+    };
+
+    SettingPowerBehaviors ;
+    SettingDesktopDock    ;
+    SettingDesktopTheme   ;
+    InstallGPUDRivers     ;
 };
 
 function InstallVirtualMachine()
@@ -572,39 +611,39 @@ function InstallTerminalUtilities()
         {
             local system_nerd_font_folder="$HOME/.local/share/fonts/NerdFonts";
             local nerd_font_names=(
-                #'0xProto'
-                #'DepartureMono'
-                #'ShareTechMono'
-                #'3270'
-                #'DroidSansMono'
-                #'JetBrainsMono'  
-                #'SourceCodePro'
-                #'Agave'
-                #'EnvyCodeR'
-                #'Lekton'
-                #'Terminus'
-                #'AnonymousPro'
-                #'FantasqueSansMono'
-                #'LiberationMono'
-                #'UbuntuSans'
-                #'CascadiaMono'
+                '0xProto'
+                'DepartureMono'
+                'ShareTechMono'
+                '3270'
+                'DroidSansMono'
+                'JetBrainsMono'  
+                'SourceCodePro'
+                'Agave'
+                'EnvyCodeR'
+                'Lekton'
+                'Terminus'
+                'AnonymousPro'
+                'FantasqueSansMono'
+                'LiberationMono'
+                'UbuntuSans'
+                'CascadiaMono'
                 'Mononoki'
-                #'FiraCode'
-                #'Lilex'
-                #'Ubuntu'
-                #'CodeNewRoman'
-                #'FiraMono'
-                #'Meslo'
-                #'VictorMono'
-                #'CommitMono'
-                #'GeistMono'
-                #'Monaspace'
-                #'Cousine'
-                #'Gohu'
-                #'Monoid'
-                #'D2Coding'
-                #'IBMPlexMono'
-                #'MPlus'
+                'FiraCode'
+                'Lilex'
+                'Ubuntu'
+                'CodeNewRoman'
+                'FiraMono'
+                'Meslo'
+                'VictorMono'
+                'CommitMono'
+                'GeistMono'
+                'Monaspace'
+                'Cousine'
+                'Gohu'
+                'Monoid'
+                'D2Coding'
+                'IBMPlexMono'
+                'MPlus'
             );
 
             mkdir -p $system_nerd_font_folder;
@@ -665,15 +704,16 @@ if CheckEnvVariables;
 then
     IncreaseSudoEffectiveness;
 
-    ConfigSystemSettings     ;
     InstallGnomeUIUtilities  ;
     InstallSteam             ;
     InstallDiscord           ;
     InstallVsCode            ;
+    ConfigSystemSettings     ;
     InstallVirtualMachine    ;
     InstallCodingEcosystem   ;
     InstallTerminalUtilities ;
 
     RemoveIncreaseSudoEffectiveness;
+    
     gnome-session-quit --logout --no-prompt;
 fi
