@@ -211,23 +211,36 @@ function InstallVsCode()
 
 function ConfigSystemSettings()
 {
+
     function SettingPowerBehaviors()
     {
-        dconf write org/gnome/settings-daemon/plugins/power/sleep-inactive-ac-timeout 0;
-        dconf write org/gnome/settings-daemon/plugins/power/sleep-inactive-ac-type "'nothing'";
-        dconf write org/gnome/settings-daemon/plugins/power/sleep-inactive-battery-type "'nothing'";
-        dconf write org/gnome/desktop/screensaver/lock-enabled "false";
-        dconf write org/gnome/desktop/screensaver/ubuntu-lock-on-suspend "false";
-        dconf write org/gnome/desktop/notifications/show-in-lock-screen "false";
-        dconf write org/gnome/desktop/session/idle-delay 0;
+        dconf write /org/gnome/desktop/session/idle-delay                                   0           ;
+        dconf write /org/gnome/settings-daemon/plugins/power/sleep-inactive-ac-timeout      0           ;
+        dconf write /org/gnome/settings-daemon/plugins/power/sleep-inactive-battery-timeout 0           ;
+        dconf write /org/gnome/desktop/screensaver/lock-enabled                             false       ;
+        dconf write /org/gnome/settings-daemon/plugins/power/idle-dim                       false       ;
+        dconf write /org/gnome/desktop/notifications/show-in-lock-screen                    false       ;
+        dconf write /org/gnome/desktop/screensaver/ubuntu-lock-on-suspend                   false       ;
+        dconf write /org/gnome/settings-daemon/plugins/power/sleep-inactive-ac-type         "'nothing'" ;
+        dconf write /org/gnome/settings-daemon/plugins/power/sleep-inactive-battery-type    "'nothing'" ;
+
+        gsettings set org.gnome.desktop.session               idle-delay                     0         ;
+        gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-ac-timeout      0         ;
+        gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-battery-timeout 0         ;
+        gsettings set org.gnome.desktop.screensaver           lock-enabled                   false     ;
+        gsettings set org.gnome.settings-daemon.plugins.power idle-dim                       false     ;
+        gsettings set org.gnome.desktop.notifications         show-in-lock-screen            false     ;
+        gsettings set org.gnome.desktop.screensaver           ubuntu-lock-on-suspend         false     ;
+        gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-ac-type         'nothing' ;
+        gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-battery-type    'nothing' ;
     };
 
     function SettingDesktopDock()
     {
-        FormatGSettingIconsList()
+        function FormatGSettingIconsList()
         {
             local array=("$@");
-
+            
             printf -v formatted "'%s'," "${array[@]}";
             echo "[${formatted%,}]";
         };
@@ -242,23 +255,38 @@ function ConfigSystemSettings()
             'gnome-control-center.desktop'
         );
 
-        dconf write org/gnome/shell/extensions/dash-to-dock/manualhide "true";
-        dconf write org/gnome/shell/extensions/dash-to-dock/intellihide "true";
-        dconf write org/gnome/shell/extensions/dash-to-dock/dash-max-icon-size 35;
-        dconf write org/gnome/shell/extensions/dash-to-dock/extend-height "false";
-        dconf write org/gnome/shell/extensions/dash-to-dock/click-action "'minimize-or-previews'";
-        dconf write org/gnome/shell/extensions/dash-to-dock/dock-position "'BOTTOM'";
-        dconf write org/gnome/shell/extensions/dash-to-dock/dock-alignment "'CENTER'";
-        dconf write org/gnome/shell/favorite-apps "$(FormatGSettingIconsList "${dock_icons[@]}")";
+        dconf write /org/gnome/shell/extensions/dash-to-dock/dash-max-icon-size 35                                              ;
+        dconf write /org/gnome/shell/extensions/dash-to-dock/manualhide         true                                            ;
+        dconf write /org/gnome/shell/extensions/dash-to-dock/intellihide        true                                            ;
+        dconf write /org/gnome/shell/extensions/dash-to-dock/extend-height      false                                           ;
+        dconf write /org/gnome/shell/extensions/dash-to-dock/dock-position      "'BOTTOM'"                                      ;
+        dconf write /org/gnome/shell/extensions/dash-to-dock/dock-alignment     "'CENTER'"                                      ;
+        dconf write /org/gnome/shell/extensions/dash-to-dock/click-action       "'minimize-or-previews'"                        ;
+        dconf write /org/gnome/shell/favorite-apps                              "$(FormatGSettingIconsList "${dock_icons[@]}")" ;
+
+        gsettings set org.gnome.shell.extensions.dash-to-dock dash-max-icon-size 35                                              ;
+        gsettings set org.gnome.shell.extensions.dash-to-dock manualhide         true                                            ;
+        gsettings set org.gnome.shell.extensions.dash-to-dock intellihide        true                                            ;
+        gsettings set org.gnome.shell.extensions.dash-to-dock extend-height      false                                           ;
+        gsettings set org.gnome.shell.extensions.dash-to-dock dock-position      'BOTTOM'                                        ;
+        gsettings set org.gnome.shell.extensions.dash-to-dock dock-alignment     'CENTER'                                        ;
+        gsettings set org.gnome.shell.extensions.dash-to-dock click-action       'minimize-or-previews'                          ;
+        gsettings set org.gnome.shell                         favorite-apps      "$(FormatGSettingIconsList "${dock_icons[@]}")" ;
     };
 
     function SettingDesktopTheme()
     {
-        dconf write org/gnome/gedit/preferences/editor/scheme "'pop-dark'";
-        dconf write org/gnome/shell/extensions/pop-cosmic/show-workspaces-button "false";
-        dconf write org/gnome/shell/extensions/pop-cosmic/show-applications-button "false";
-        dconf write org/gnome/shell/extensions/pop-cosmic/clock-alignment "'CENTER'";
-        dconf write org/gnome/desktop/screensaver/picture-uri "'file:///usr/share/backgrounds/pop/nick-nazzaro-ice-cave.png'";
+        dconf write /org/gnome/shell/extensions/pop-cosmic/show-workspaces-button   false                                                           ;
+        dconf write /org/gnome/shell/extensions/pop-cosmic/show-applications-button false                                                           ;
+        dconf write /org/gnome/shell/extensions/pop-cosmic/clock-alignment          "'CENTER'"                                                      ;
+        dconf write /org/gnome/gedit/preferences/editor/scheme                      "'pop-dark'"                                                    ;
+        dconf write /org/gnome/desktop/screensaver/picture-uri                      "'file:///usr/share/backgrounds/pop/nick-nazzaro-ice-cave.png'" ;
+
+        gsettings set org.gnome.shell.extensions.pop-cosmic show-workspaces-button   false                                                         ;
+        gsettings set org.gnome.shell.extensions.pop-cosmic show-applications-button false                                                         ;
+        gsettings set org.gnome.shell.extensions.pop-cosmic clock-alignment          'CENTER'                                                      ;
+        gsettings set org.gnome.gedit.preferences.editor    scheme                   'pop-dark'                                                    ;
+        gsettings set org.gnome.desktop.screensaver         picture-uri              'file:///usr/share/backgrounds/pop/nick-nazzaro-ice-cave.png' ;
     };
 
     function InstallGPUDRivers()
