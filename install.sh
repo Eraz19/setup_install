@@ -256,7 +256,8 @@ function ConfigSystemSettings()
         );
 
         dconf write /org/gnome/shell/extensions/dash-to-dock/dash-max-icon-size 35                                              ;
-        dconf write /org/gnome/shell/extensions/dash-to-dock/manualhide         true                                            ;
+        dconf write /org/gnome/shell/extensions/dash-to-dock/manualhide         false                                           ;
+        dconf write /org/gnome/shell/extensions/dash-to-dock/dock-fixed         false                                           ;
         dconf write /org/gnome/shell/extensions/dash-to-dock/intellihide        true                                            ;
         dconf write /org/gnome/shell/extensions/dash-to-dock/extend-height      false                                           ;
         dconf write /org/gnome/shell/extensions/dash-to-dock/dock-position      "'BOTTOM'"                                      ;
@@ -265,7 +266,8 @@ function ConfigSystemSettings()
         dconf write /org/gnome/shell/favorite-apps                              "$(FormatGSettingIconsList "${dock_icons[@]}")" ;
 
         gsettings set org.gnome.shell.extensions.dash-to-dock dash-max-icon-size 35                                              ;
-        gsettings set org.gnome.shell.extensions.dash-to-dock manualhide         true                                            ;
+        gsettings set org.gnome.shell.extensions.dash-to-dock manualhide         false                                           ;
+        gsettings set org.gnome.shell.extensions.dash-to-dock dock-fixed         false                                           ;
         gsettings set org.gnome.shell.extensions.dash-to-dock intellihide        true                                            ;
         gsettings set org.gnome.shell.extensions.dash-to-dock extend-height      false                                           ;
         gsettings set org.gnome.shell.extensions.dash-to-dock dock-position      'BOTTOM'                                        ;
