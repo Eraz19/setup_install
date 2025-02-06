@@ -316,6 +316,8 @@ function ConfigSystemSettings()
             dconf write /org/gnome/desktop/interface/color-scheme  "'prefer-dark'" ;
             dconf write /org/gnome/desktop/interface/gtk-theme     "'Pop-dark'"    ;
             dconf write /org/gnome/gedit/preferences/editor/scheme "'pop-dark'"    ;
+
+            dconf write /org/gnome/desktop/wm/preferences/button-layout "'appmenu:minimize,maximize,close'";
         };
 
         function SettingDesktopTheme_GSettings()
@@ -330,6 +332,8 @@ function ConfigSystemSettings()
             gsettings set org.gnome.desktop.interface        color-scheme 'prefer-dark' ;
             gsettings set org.gnome.desktop.interface        gtk-theme    'Pop-dark'    ;
             gsettings set org.gnome.gedit.preferences.editor scheme       'pop-dark'    ;
+
+            gsettings set org.gnome.desktop.wm.preferences button-layout 'appmenu:minimize,maximize,close';
         };
 
         SettingDesktopTheme_Dconf     ;
