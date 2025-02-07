@@ -10,6 +10,11 @@ function RemoveIncreaseSudoEffectiveness()
     sudo rm /etc/sudoers.d/custom_sudo_timeout;
 };
 
+function CommandExists()
+{
+    command -v "$1" >/dev/null 2>&1;
+};
+
 function CheckEnvVariables()
 {
     local env_file=".env";
@@ -43,9 +48,34 @@ function CheckEnvVariables()
     return 0;
 };
 
-function SetZshConfigFile()
+#function SetZshConfigFile()
+#{
+#    sudo printf '\n%s' "$1" | sed -E "s/^[[:space:]]{${2:-0}}//" | sudo tee -a "$PROJECT_ROOT_FOLDER/.zshrc" > /dev/null;
+#};
+
+
+function SetZshConfigFile() 
 {
-    sudo printf '\n%s' "$1" | sed -E "s/^[[:space:]]{${2:-0}}//" | sudo tee -a "$PROJECT_ROOT_FOLDER/.zshrc" > /dev/null;
+    local content="$1";
+    local indentation="${2:-0}";
+    local section="$3";
+    local zshrc_file="/home/eraz/Documents/Perso/Setup/.zshrc"; # "$PROJECT_ROOT_FOLDER/.zshrc";
+
+    if [[ -z "$section" ]];
+    then
+        echo "Error: Section name is required.";
+        return 1;
+    fi
+
+    if ! grep -q "###################### $section ######################" "$zshrc_file";
+    then
+        echo "Error: Section '$section' not found in .zshrc. No changes made.";
+        return 1;
+    fi
+
+    local formatted_content="\n$(echo -e "$content" | sed -E "s/^[[:space:]]{$indentation}//")\n";
+
+    sudo sed -i "/###################### $section ######################/a\\$formatted_content" "$zshrc_file";
 };
 
 
@@ -579,6 +609,29 @@ function InstallCodingEcosystem()
         InstallKotlinToolchain ;
     };
 
+    function InstallPython()
+    {
+        echo "Starting Python development environment setup..."
+
+        if ! CommandExists python3;
+        then
+            echo "Installing Python...";
+            sudo apt update && sudo apt install -y python3 python3-pip python3-venv;
+        else
+            echo "Python is already installed.";
+        fi
+
+        echo "Installing Python development tools...";
+        pip3 install --user pipenv;
+
+        if ! grep -q 'export PATH="$PATH:$HOME/.local/bin"' $PROJECT_ROOT_FOLDER/.zshhrc;
+        then
+            SetZshConfigFile 'export PATH="$PATH:$HOME/.local/bin"' 0;
+        fi
+
+        echo "Python development environment setup complete! 🎉"
+    }
+
     InstallGit    ;
     InstallNvm    ;
     InstallKotlin ;
@@ -779,22 +832,30 @@ function InstallTerminalUtilities()
     ChangeDefaultShellToZsh ;
 };
 
-sudo -v;
+#sudo -v;
+#
+#if CheckEnvVariables;
+#then
+#    IncreaseSudoEffectiveness;
+#
+#    InstallGnomeUIUtilities  ;
+#    InstallSteam             ;
+#    InstallDiscord           ;
+#    InstallVsCode            ;
+#    ConfigSystemSettings     ;
+#    InstallVirtualMachine    ;
+#    InstallCodingEcosystem   ;
+#    InstallTerminalUtilities ;
+#
+#    RemoveIncreaseSudoEffectiveness;
+#    
+#    gnome-session-quit --logout --no-prompt;
+#fi
 
-if CheckEnvVariables;
-then
-    IncreaseSudoEffectiveness;
 
-    InstallGnomeUIUtilities  ;
-    InstallSteam             ;
-    InstallDiscord           ;
-    InstallVsCode            ;
-    ConfigSystemSettings     ;
-    InstallVirtualMachine    ;
-    InstallCodingEcosystem   ;
-    InstallTerminalUtilities ;
 
-    RemoveIncreaseSudoEffectiveness;
-    
-    gnome-session-quit --logout --no-prompt;
-fi
+SetZshConfigFile "Test1" 0 "EXPORT"
+SetZshConfigFile "Test1" 0 "SOURCE"
+SetZshConfigFile "Test1" 0 "ALIAS"
+SetZshConfigFile "Test1" 0 "ENVIRONMENT VARIABLES"
+SetZshConfigFile "Test1" 0 "FUNCTION"
