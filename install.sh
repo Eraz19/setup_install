@@ -989,7 +989,7 @@ function InstallTerminalUtilities()
                     'MPlus'
                 );
 
-                mkdir -p "$system_nerd_font_path";
+                sudo mkdir -p "$system_nerd_font_path";
 
                 for nerd_font_name in "${nerd_font_names[@]}";
                 do                
