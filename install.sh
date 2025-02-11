@@ -913,7 +913,7 @@ function InstallTerminalUtilities()
                     
                     if [ $? -eq 0 ];
                     then
-                        unzip -o "$DOWNLOAD_FOLDER/$nerd_font_name.zip" -d "$system_nerd_font_folder";
+                        sudo unzip -o "$DOWNLOAD_FOLDER/$nerd_font_name.zip" -d "$system_nerd_font_folder";
                     fi
                     
                     rm "$DOWNLOAD_FOLDER/$nerd_font_name.zip";
