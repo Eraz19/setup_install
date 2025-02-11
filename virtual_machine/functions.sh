@@ -3,6 +3,8 @@
 
 function vm_disk_create()
 {
+    local disk_path="$SETUP/virtual_machine/$1";
+
     if [ -z "$1" ];
     then
         echo "Error: No disk file name provided.";
@@ -10,13 +12,14 @@ function vm_disk_create()
         return 1;
     fi
 
-    qemu-img create -f qcow2 "$SETUP/virtual_machine/$1" 40G;
-
-    echo "Virtual disk $1 created in $SETUP/virtual_machine/";
+    qemu-img create -f qcow2 "$disk_path" 40G;
 };
 
 function vm_os_install()
 {
+    local os_path="$1";
+    local disk_path="$SETUP/virtual_machine/$2";
+
     if [ -z "$1" ] || [ -z "$2" ];
     then
         echo "Error: Missing arguments.";
@@ -29,8 +32,8 @@ function vm_os_install()
         -m 4096 \
         -cpu host \
         -smp 2 \
-        -cdrom "$1" \
-        -drive file="$SETUP/virtual_machine/$2",format=qcow2 \
+        -cdrom "$os_path" \
+        -drive file="$disk_path",format=qcow2 \
         -boot d \
         -vga virtio \
         -display sdl;
@@ -38,6 +41,8 @@ function vm_os_install()
 
 function vm_run()
 {
+    local disk_path="$SETUP/virtual_machine/$1";
+
     if [ -z "$1" ];
     then
         echo "Error: No disk file name provided.";
@@ -50,7 +55,7 @@ function vm_run()
         -m 4096 \
         -cpu host \
         -smp 2 \
-        -drive file="$SETUP/virtual_machine/$1",format=qcow2,snapshot=on \
+        -drive file="$disk_path",format=qcow2,snapshot=on \
         -vga virtio \
         -display sdl \
         -spice port=5900,disable-ticketing=on \

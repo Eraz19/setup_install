@@ -23,31 +23,33 @@ function CheckScriptEnvironmentVariables()
 {
     function ImportEnvironmentVariables()
     {
-        local environment_file="$1";
+        local env_variables_path="$1";
 
-        if [[ ! -f "$environment_file" ]];
+        if [[ ! -f "$env_variables_path" ]];
         then
             return 1;
         fi
 
-        source "$environment_file";
+        source "$env_variables_path";
     };
 
-    local environment_file=".env";
-    local required_environment_variables=(
+    local env_variables_file=".env";
+    local env_variables_path="$PWD/$env_variables_file";
+
+    local required_env_variables=(
         'GIT_USERNAME'
         'GIT_EMAIL'
         'GIT_SSH_KEY_FILE'
     );
 
-    if ! ImportEnvironmentVariables "$environment_file";
+    if ! ImportEnvironmentVariables "$env_variables_path";
     then
         return 1;
     fi
 
-    for required_environment_variable in "${required_environment_variables[@]}";
+    for required_env_variable in "${required_env_variables[@]}";
     do
-        if [[ -z "${!required_environment_variable}" ]];
+        if [[ -z "${!required_env_variable}" ]];
         then
             return 1;
         fi
@@ -80,29 +82,36 @@ function IsCommandExists()
 #   $3 : .zshrc section in which to write the command lines
 function SetZshConfigFile() 
 {
+    local zshrc_file=".zshrc";
+    local zshrc_temp_file=".zshrc.tmp";
+    local zshrc_path="$PWD/$zshrc_file";
+    local zshrc_temp_path="$PWD/$zshrc_temp_file";
+
     local content="$1";
     local indentation="${2:-0}";
-    local formatted_content="\n$(echo -e "$content" | sed -E "s/^[[:space:]]{$indentation}//")";
     local section="$3";
-    local zshrc_file="$PWD/.zshrc";
 
-    if [[ -z "$section" ]];
+    if [[ -z "$section" ]] || ! grep -q "###################### $section ######################" "$zshrc_path";
     then
         return 1;
     fi
 
-    if ! grep -q "###################### $section ######################" "$zshrc_file";
-    then
-        return 1;
-    fi
+    local formatted_content="$(echo "$content" | sed -E "s/^[[:space:]]{$indentation}//")";
 
-    sudo sed -i "/###################### $section ######################/a\\$formatted_content" "$zshrc_file";
+    awk -v section="###################### $section ######################" -v content="$formatted_content" '
+        {
+            print;
+            if ($0 ~ section) {
+                getline; print content;
+            }
+        }
+    ' "$zshrc_path" > "$zshrc_temp_path" && mv "$zshrc_temp_path" "$zshrc_path";
 };
-function SetZshConfigFile_Source              () { SetZshConfigFile $1 $2 "SOURCE"                ; } ;
-function SetZshConfigFile_Export              () { SetZshConfigFile $1 $2 "EXPORT"                ; } ;
-function SetZshConfigFile_Alias               () { SetZshConfigFile $1 $2 "ALIAS"                 ; } ;
-function SetZshConfigFile_EnvironmentVariables() { SetZshConfigFile $1 $2 "ENVIRONMENT_VARIABLES" ; } ;
-function SetZshConfigFile_Function            () { SetZshConfigFile $1 $2 "FUNCTION"              ; } ;
+function SetZshConfigFile_Source              () { SetZshConfigFile "$1" "$2" "SOURCE"                ; } ;
+function SetZshConfigFile_Export              () { SetZshConfigFile "$1" "$2" "EXPORT"                ; } ;
+function SetZshConfigFile_Alias               () { SetZshConfigFile "$1" "$2" "ALIAS"                 ; } ;
+function SetZshConfigFile_EnvironmentVariables() { SetZshConfigFile "$1" "$2" "ENVIRONMENT_VARIABLES" ; } ;
+function SetZshConfigFile_Function            () { SetZshConfigFile "$1" "$2" "FUNCTION"              ; } ;
 
 ###################### SCRIPT ######################
 
@@ -157,16 +166,17 @@ function InstallApps()
     {
         function InstallSoftware()
         {
-            local temp_download_file="discord.deb";
+            local package_file="discord.deb";
+            local package_path="$DOWNLOAD_FOLDER/$package_file";
 
             # Download .deb package file
-            sudo wget -O "$DOWNLOAD_FOLDER/$temp_download_file" "https://discord.com/api/download?platform=linux&format=deb";
+            sudo wget -O "$package_path" "https://discord.com/api/download?platform=linux&format=deb";
             # Install .deb package
-            sudo dpkg -i "$DOWNLOAD_FOLDER/$temp_download_file";
+            sudo dpkg -i "$package_path";
             # Install possible missing dependencies
             sudo apt install -f -y;
             # Remove .deb package file
-            sudo rm "$DOWNLOAD_FOLDER/$temp_download_file";
+            sudo rm "$package_path";
         };
 
         function LaunchFirstUpdate()
@@ -216,14 +226,19 @@ function InstallApps()
         {
             function AddVsCodeRepository()
             {
-                local temp_download_file="packages.microsoft.gpg";
+                local gpg_key_file="packages.microsoft.gpg";
+                local gpg_key_temp_file="packages.microsoft.gpg.tmp";
+                local gpg_key_path="$SYSTEM_SHARED_GPG_KEYS_FOLDER/$gpg_key_file";
+                local gpg_key_temp_path="$DOWNLOAD_FOLDER/$gpg_key_temp_file";
 
                 # Download gpg key
-                sudo wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > "$DOWNLOAD_FOLDER/$temp_download_file";
+                sudo wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > "$gpg_key_temp_path";
                 # Move gpg key into standard location
-                sudo install -o root -g root -m 644 "$DOWNLOAD_FOLDER/$temp_download_file" "$SYSTEM_SHARED_GPG_KEYS_FOLDER/";
+                sudo mkdir -p "$gpg_key_path";
+                sudo install -o root -g root -m 644 "$gpg_key_temp_path" "$gpg_key_path";
                 # Add VsCode repository in system
-                echo "deb [arch=amd64 signed-by=$SYSTEM_SHARED_GPG_KEYS_FOLDER/$temp_download_file] https://packages.microsoft.com/repos/code stable main" | sudo tee /etc/apt/sources.list.d/vscode.list;
+                echo "deb [arch=amd64 signed-by="$gpg_key_path"] https://packages.microsoft.com/repos/code stable main" | sudo tee /etc/apt/sources.list.d/vscode.list;
+                sudo rm "$gpg_key_temp_path";
             };
 
             AddVsCodeRepository;
@@ -270,7 +285,8 @@ function InstallApps()
         {
             function ConfigKeyboardShortcut()
             {
-                sudo printf '[
+                sudo printf '
+                [
                     {
                         "key": "ctrl+alt+m",
                         "command": "editor.action.transformToUppercase",
@@ -281,13 +297,29 @@ function InstallApps()
                         "command": "editor.action.transformToLowercase",
                         "when": "editorTextFocus"
                     }
-                ]' | sed 's/^ \{12\}//' | sudo tee "$1" > /dev/null;
+                ]' | sed 's/^ \{16\}//' | sudo tee "$1" > /dev/null;
             };
 
             local keyboard_shortcut_file='keybindings.json';
+            local keyboard_shortcut_path="$VS_CODE_CUSTOM_CONFIG_FOLDER/$keyboard_shortcut_file";
 
             sudo mkdir -p "$VS_CODE_CUSTOM_CONFIG_FOLDER";
-            ConfigKeyboardShortcut "$VS_CODE_CUSTOM_CONFIG_FOLDER/$keyboard_shortcut_file";
+            ConfigKeyboardShortcut "$keyboard_shortcut_path";
+        };
+
+        function SettingIcons()
+        {
+            local settings_file='settings.json';
+            local settings_temp_file="settings.json.tmp";
+            local settings_path="$VS_CODE_CUSTOM_CONFIG_FOLDER/$settings_file";
+            local settings_temp_path="$VS_CODE_CUSTOM_CONFIG_FOLDER/$settings_temp_file";
+
+            if ! IsCommandExists jq;
+            then
+                sudo apt install -y jq;
+            fi
+            
+            sudo jq '. + {"workbench.iconTheme": "material-icon-theme"}' "$settings_path" > "$settings_temp_path" && mv "$settings_temp_path" "$settings_path";
         };
         
         echo "Installing VsCode...";
@@ -295,6 +327,7 @@ function InstallApps()
         InstallSoftware          ;
         InstallExtensions        ;
         SettingKeyboardShortcuts ;
+        SettingIcons             ;
     };
 
     function InstallVirtualMachine()
@@ -306,12 +339,12 @@ function InstallApps()
 
         function ConfigVirtualMachineCommands()
         {
+            echo "ConfigVirtualMachineCommands"
+
             SetZshConfigFile_Alias '
-                alias vm_disk_create="bash $SETUP/virtual_machine/functions.sh vm_disk_create";
-
-                alias vm_os_install="bash $SETUP/virtual_machine/functions.sh vm_os_install";
-
-                alias vm_run="bash $SETUP/virtual_machine/functions.sh vm_run";
+                alias vm_disk_create="bash $SETUP/virtual_machine/functions.sh vm_disk_create"
+                alias vm_os_install="bash $SETUP/virtual_machine/functions.sh vm_os_install"
+                alias vm_run="bash $SETUP/virtual_machine/functions.sh vm_run"
             ' 16;
         };
 
@@ -342,20 +375,21 @@ function InstallCodingEcosystem()
             sudo git config --global user.email "$GIT_EMAIL"    ;
         };
 
-        function CreateSSLKeyForGit()
+        function CreateSSHKeyForGit()
         {
             local ssh_key_file="'$GIT_SSH_KEY_FILE'_ed25519";
+            local ssh_key_path="$SSH_KEYS_FOLDER/$ssh_key_file";
 
-            sudo ssh-keygen -t ed25519 -C "$GIT_EMAIL" -f "$SSH_KEYS_FOLDER/$ssh_key_file" -N "";
+            sudo ssh-keygen -t ed25519 -C "$GIT_EMAIL" -f "$ssh_key_path" -N "";
             sudo eval "$(ssh-agent -s)";
-            sudo ssh-add "$SSH_KEYS_FOLDER/$ssh_key_file";
+            sudo ssh-add "$ssh_key_path";
         };
 
         echo "Installing Git...";
 
         InstallSoftware    ;
         ConfigLocalGit     ;
-        CreateSSLKeyForGit ;
+        CreateSSHKeyForGit ;
     };
 
     function InstallNvm()
@@ -757,13 +791,12 @@ function InstallTerminalUtilities()
     {
         function InstallSoftware()
         {
-            local zip_download_file="yazi.zip";
-            local target_extraction_folder="yazi-temp";
+            if ! IsCommandExists busybox;
+            then
+                sudo apt install -y busybox;
+            fi
 
-            sudo wget -qO "$DOWNLOAD_FOLDER/$zip_download_file" https://github.com/sxyazi/yazi/releases/latest/download/yazi-x86_64-unknown-linux-gnu.zip;
-            sudo unzip -q "$DOWNLOAD_FOLDER/$zip_download_file" -d "$DOWNLOAD_FOLDER/$target_extraction_folder";
-            sudo mv "$temp_download_folder/$target_extraction_folder/*/yazi" "$USER_BINARIES_FOLDER";
-            sudo rm -rf "$temp_download_folder/$target_extraction_folder" "$DOWNLOAD_FOLDER/$zip_download_file";
+            sudo wget -qO- https://github.com/sxyazi/yazi/releases/latest/download/yazi-x86_64-unknown-linux-gnu.zip | sudo busybox unzip -q - -d "$USER_BINARIES_FOLDER";
         };
 
         function ConfigYazi()
@@ -801,15 +834,16 @@ function InstallTerminalUtilities()
         {
             function InstallSoftware()
             {
-                sudo git clone https://github.com/zsh-users/zsh-autosuggestions.git     $HOME/.oh-my-zsh/plugins/zsh-autosuggestions     ;
-                sudo git clone https://github.com/zsh-users/zsh-syntax-highlighting.git $HOME/.oh-my-zsh/plugins/zsh-syntax-highlighting ;
+                local plugins_path="$HOME/.oh-my-zsh/plugins";
+
+                sudo git clone https://github.com/zsh-users/zsh-autosuggestions.git     "$plugins_path/zsh-autosuggestions"     ;
+                sudo git clone https://github.com/zsh-users/zsh-syntax-highlighting.git "$plugins_path/zsh-syntax-highlighting" ;
             };
 
             function ConfigZshPlugins()
             {
                 SetZshConfigFile_Source '
                     source $HOME/.oh-my-zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
-
                     source $HOME/.oh-my-zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
                 ' 20;
             
@@ -824,12 +858,15 @@ function InstallTerminalUtilities()
         {
             function LinkZshrc()
             {
-                if [ -f "$HOME/.zshrc" ];
+                local source_zshrc_path="$PWD/.zshrc";
+                local destination_zshrc_path="$HOME/.zshrc";
+
+                if [ -f "$destination_zshrc_path" ];
                 then
-                    sudo rm "$HOME/.zshrc";
+                    sudo rm "$destination_zshrc_path";
                 fi
 
-                sudo ln -s $PWD/.zshrc $HOME/.zshrc;
+                sudo ln -s "$source_zshrc_path" "$destination_zshrc_path";
             };
 
             function ConfigSetupPath()
@@ -853,8 +890,10 @@ function InstallTerminalUtilities()
     {
         function InstallSoftware()
         {
-            sudo wget https://github.com/JanDeDobbeleer/oh-my-posh/releases/latest/download/posh-linux-amd64 -O "$USER_BINARIES_FOLDER/oh-my-posh";
-            sudo chmod +x "$USER_BINARIES_FOLDER/oh-my-posh";
+            local oh_my_posh_path="$USER_BINARIES_FOLDER/oh-my-posh";
+
+            sudo wget https://github.com/JanDeDobbeleer/oh-my-posh/releases/latest/download/posh-linux-amd64 -O "$oh_my_posh_path";
+            sudo chmod +x "$oh_my_posh_path";
         };
 
         function ConfigOhMyPosh()
@@ -866,7 +905,7 @@ function InstallTerminalUtilities()
         {
             function DownloadFontToSystem()
             {
-                local system_nerd_font_folder="$SYSTEM_SHARED_FONT_FOLDER/NerdFonts";
+                local system_nerd_font_path="$SYSTEM_SHARED_FONT_FOLDER/NerdFonts";
                 local nerd_font_names=(
                     '0xProto'
                     'DepartureMono'
@@ -903,20 +942,21 @@ function InstallTerminalUtilities()
                     'MPlus'
                 );
 
-                mkdir -p "$system_nerd_font_folder";
+                mkdir -p "$system_nerd_font_path";
 
                 for nerd_font_name in "${nerd_font_names[@]}";
                 do                
                     local font_url="https://github.com/ryanoasis/nerd-fonts/releases/latest/download/$nerd_font_name.zip";
+                    local font_temp_path="$DOWNLOAD_FOLDER/$nerd_font_name.zip";
                     
-                    wget -q --show-progress "$font_url" -O "$DOWNLOAD_FOLDER/$nerd_font_name.zip";
+                    wget -q --show-progress "$font_url" -O "$font_temp_path";
                     
                     if [ $? -eq 0 ];
                     then
-                        sudo unzip -o "$DOWNLOAD_FOLDER/$nerd_font_name.zip" -d "$system_nerd_font_folder";
+                        sudo unzip -o "$font_temp_path" -d "$system_nerd_font_path";
                     fi
                     
-                    rm "$DOWNLOAD_FOLDER/$nerd_font_name.zip";
+                    rm "$font_temp_path";
                 done
             };
 
