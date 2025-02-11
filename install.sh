@@ -333,7 +333,7 @@ function InstallApps()
                 sudo apt install -y jq;
             fi
 
-            sudo jq '. + {"workbench.iconTheme": "material-icon-theme"}' "$settings_path" > "$settings_temp_path" && mv "$settings_temp_path" "$settings_path";
+            sudo jq '. + {"workbench.iconTheme": "material-icon-theme"}' "$settings_path" > "$settings_temp_path" && mv -f "$settings_temp_path" "$settings_path";
         };
         
         echo "Installing VsCode...";
