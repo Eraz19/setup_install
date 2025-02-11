@@ -321,6 +321,13 @@ function InstallApps()
             local settings_path="$VS_CODE_CUSTOM_CONFIG_FOLDER/$settings_file";
             local settings_temp_path="$VS_CODE_CUSTOM_CONFIG_FOLDER/$settings_temp_file";
 
+            mkdir -p "$VS_CODE_CUSTOM_CONFIG_FOLDER";
+
+            if [[ ! -f "$settings_path" ]];
+            then
+                echo "{}" | sudo tee "$settings_path" > /dev/null;
+            fi
+
             if ! IsCommandExists jq;
             then
                 sudo apt install -y jq;
