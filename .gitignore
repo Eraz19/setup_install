@@ -1,5 +1,4 @@
 .env
 
-/virtual_machine/*
-
-/font/*.zip
+/virtual_machine/**
+!/virtual_machine/**/*.sh
