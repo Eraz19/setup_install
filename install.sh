@@ -98,7 +98,7 @@ function SetZshConfigFile()
 
     local formatted_content="$(echo "$content" | sed -E "s/^[[:space:]]{$indentation}//")";
 
-    awk -v section="###################### $section ######################" -v content="\n$formatted_content" '
+    awk -v section="###################### $section ######################" -v content="$formatted_content" '
         {
             print;
             if ($0 ~ section) {
@@ -362,10 +362,10 @@ function InstallApps()
         ConfigVirtualMachineCommands ;
     };
 
-    InstallSteam          ;
-    InstallDiscord        ;
+    #InstallSteam          ;
+    #InstallDiscord        ;
     InstallVsCode         ;
-    InstallVirtualMachine ;
+    #InstallVirtualMachine ;
 };
 
 function InstallCodingEcosystem()
@@ -402,7 +402,7 @@ function InstallCodingEcosystem()
         CreateSSHKeyForGit ;
     };
 
-    # NEED CHECKING
+    # Not working
     function InstallNvm()
     {
         function InstallSoftware()
@@ -420,6 +420,7 @@ function InstallCodingEcosystem()
             sudo nvm install --lts;
         };
 
+        # DONE
         function ConfigNvmPath()
         {
             SetZshConfigFile_Export '
@@ -454,7 +455,7 @@ function InstallCodingEcosystem()
         InstallDevelopmentTools ;
     };
 
-    # NEED CHECKING
+    # Not working
     function InstallKotlin()
     {
         function InstallJVM()
@@ -513,7 +514,7 @@ function InstallCodingEcosystem()
 
     InstallGit    ;
     InstallNvm    ;
-    InstallPython ;
+    #InstallPython ;
     InstallKotlin ;
 };
 
@@ -839,10 +840,12 @@ function InstallTerminalUtilities()
             sudo wget -qO- https://github.com/sxyazi/yazi/releases/latest/download/yazi-x86_64-unknown-linux-gnu.zip | sudo busybox unzip -q - -d "$USER_BINARIES_FOLDER";
         };
 
-        # Not working
+        # DONE
         function ConfigYazi()
         {
-            SetZshConfigFile_Alias 'alias nav=yazi' 0;
+            SetZshConfigFile_Alias '
+                alias nav=yazi
+            ' 16;
         };
 
         echo "Installing Yazi...";
@@ -856,25 +859,29 @@ function InstallTerminalUtilities()
     {
         echo "Installing Palette...";
 
-        SetZshConfigFile_Alias 'alias palette="for i in {0..255}; do printf "\e[48;5;%sm %03d " $i $i; [ $(( (i+1) % 6 )) -eq 0 ] && echo ""; done; echo -e "\e[0m""' 0;
+        SetZshConfigFile_Alias '
+            alias palette="for i in {0..255}; do printf "\e[48;5;%sm %03d " $i $i; [ $(( (i+1) % 6 )) -eq 0 ] && echo ""; done; echo -e "\e[0m""
+        ' 12;
     };
 
+    # DONE
     function InstallOhMyZsh()
-    {
-        # DONE
+    {    
         function InstallSoftware()
         {
             CHSH=no RUNZSH=no sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)";
         };
 
-        # Not working
         function ConfigOhMyZsh()
         {
-            SetZshConfigFile_Export 'export ZSH="$HOME/.oh-my-zsh"' 0 ;
-            SetZshConfigFile_Source 'source $ZSH/oh-my-zsh.sh'      0 ;
+            SetZshConfigFile_Export '
+                export ZSH="$HOME/.oh-my-zsh"
+            ' 16;
+            SetZshConfigFile_Source '
+                source $ZSH/oh-my-zsh.sh
+            ' 16;
         };
 
-        # DONE
         function InstallPlugins()
         {
             function InstallSoftware()
@@ -891,15 +898,15 @@ function InstallTerminalUtilities()
                     source $HOME/.oh-my-zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
                     source $HOME/.oh-my-zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
                 ' 20;
-            
-                SetZshConfigFile_EnvironmentVariables "plugins=(git zsh-autosuggestions zsh-syntax-highlighting)" 0;
+                SetZshConfigFile_EnvironmentVariables '
+                    plugins=(git zsh-autosuggestions zsh-syntax-highlighting)
+                ' 20;
             };
 
             InstallSoftware  ;
             ConfigZshPlugins ;
         };
 
-        # DONE
         function ModifyZSHConfigFileInSystem()
         {
             function LinkZshrc()
@@ -917,7 +924,9 @@ function InstallTerminalUtilities()
 
             function ConfigSetupPath()
             {
-                SetZshConfigFile_Export "export SETUP="$PWD"" 0;
+                SetZshConfigFile_Export "
+                    export SETUP="$PWD"
+                " 20;
             };
 
             LinkZshrc       ;
@@ -945,7 +954,9 @@ function InstallTerminalUtilities()
 
         function ConfigOhMyPosh()
         {
-            SetZshConfigFile_Source "eval \"\$(oh-my-posh init zsh --config $PWD/oh_my_posh/custom.omp.json)\"" 0;
+            SetZshConfigFile_Source "
+                eval \"\$(oh-my-posh init zsh --config $PWD/oh_my_posh/custom.omp.json)\"
+            " 16;
         };
 
         function InstallNerdFont()
@@ -1063,17 +1074,17 @@ function InstallTerminalUtilities()
         sudo chsh -s "$(which zsh)" "$USER";
     };
 
-    InstallZsh              ;
-    InstallFzf              ;
-    InstallTheFuck          ;
-    InstallTree             ;
-    InstallBTop             ;
-    InstallNeofetch         ;
+    #InstallZsh              ;
+    #InstallFzf              ;
+    #InstallTheFuck          ;
+    #InstallTree             ;
+    #InstallBTop             ;
+    #InstallNeofetch         ;
     InstallYazi             ;
     InstallPalette          ;
-    InstallOhMyZsh          ;
-    InstallOhMyPosh         ;
-    ChangeDefaultShellToZsh ;
+    #InstallOhMyZsh          ;
+    #InstallOhMyPosh         ;
+    #ChangeDefaultShellToZsh ;
 };
 
 sudo -v;
@@ -1084,13 +1095,13 @@ then
 
     sudo apt update ;
 
-    InstallGnomeUIUtilities  ;
+    #InstallGnomeUIUtilities  ;
     InstallApps              ;
     InstallCodingEcosystem   ;
-    ConfigSystemSettings     ;
+    #ConfigSystemSettings     ;
     InstallTerminalUtilities ;
 
     RemoveIncreaseSudoEffectiveness;
     
-    gnome-session-quit --logout --no-prompt;
+    #gnome-session-quit --logout --no-prompt;
 fi
