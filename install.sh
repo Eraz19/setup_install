@@ -128,9 +128,9 @@ function InstallGnomeUIUtilities()
     InstallTweaks;
 };
 
+# DONE
 function InstallApps()
 {
-    # DONE
     function InstallSteam()
     {
         function InstallSoftware()
@@ -164,7 +164,6 @@ function InstallApps()
         LaunchFirstUpdate ;
     };
 
-    # DONE
     function InstallDiscord()
     {
         function InstallSoftware()
@@ -225,7 +224,6 @@ function InstallApps()
 
     function InstallVsCode()
     {
-        # DONE
         function InstallSoftware()
         {
             function AddVsCodeRepository()
@@ -249,7 +247,6 @@ function InstallApps()
             sudo apt install -y code;
         };
 
-        # DONE
         function InstallExtensions()
         {
             extensions=(
@@ -286,7 +283,6 @@ function InstallApps()
             done
         };
 
-        # DONE
         function SettingKeyboardShortcuts()
         {
             function ConfigKeyboardShortcut()
@@ -313,7 +309,6 @@ function InstallApps()
             ConfigKeyboardShortcut "$keyboard_shortcut_path";
         };
 
-        # Not working
         function SettingIcons()
         {
             local settings_file='settings.json';
@@ -344,7 +339,6 @@ function InstallApps()
         SettingIcons             ;
     };
 
-    # DONE
     function InstallVirtualMachine()
     {
         function InstallSoftware()
@@ -369,10 +363,10 @@ function InstallApps()
         ConfigVirtualMachineCommands ;
     };
 
-    #InstallSteam          ;
-    #InstallDiscord        ;
+    InstallSteam          ;
+    InstallDiscord        ;
     InstallVsCode         ;
-    #InstallVirtualMachine ;
+    InstallVirtualMachine ;
 };
 
 function InstallCodingEcosystem()
@@ -387,7 +381,7 @@ function InstallCodingEcosystem()
         # Not working
         function ConfigLocalGit()
         {
-            echo "ConfigLocalGit";
+            echo "ConfigLocalGit...";
 
             sudo git config --global user.name  "$GIT_USERNAME" ;
             sudo git config --global user.email "$GIT_EMAIL"    ;
@@ -396,8 +390,10 @@ function InstallCodingEcosystem()
         # Not working
         function CreateSSHKeyForGit()
         {
-            local ssh_key_file="'$GIT_SSH_KEY_FILE'_ed25519";
+            local ssh_key_file="$GIT_SSH_KEY_FILE"'_ed25519';
             local ssh_key_path="$SSH_KEYS_FOLDER/$ssh_key_file";
+
+            mkdir -p "$SSH_KEYS_FOLDER";
 
             sudo ssh-keygen -t ed25519 -C "$GIT_EMAIL" -f "$ssh_key_path" -N "";
             sudo eval "$(ssh-agent -s)";
@@ -1105,8 +1101,8 @@ then
     sudo apt update ;
 
     #InstallGnomeUIUtilities  ;
-    InstallApps              ;
-    #InstallCodingEcosystem   ;
+    #InstallApps              ;
+    InstallCodingEcosystem   ;
     #ConfigSystemSettings     ;
     #InstallTerminalUtilities ;
 
