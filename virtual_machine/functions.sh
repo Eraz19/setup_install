@@ -10,9 +10,9 @@ function vm_disk_create()
         return 1;
     fi
 
-    qemu-img create -f qcow2 "$PWD/$1" 40G;
+    qemu-img create -f qcow2 "$SETUP/virtual_machine/$1" 40G;
 
-    echo "Virtual disk $1 created in $PWD";
+    echo "Virtual disk $1 created in $SETUP/virtual_machine/";
 };
 
 function vm_os_install()
@@ -30,7 +30,7 @@ function vm_os_install()
         -cpu host \
         -smp 2 \
         -cdrom "$1" \
-        -drive file="$PWD/$2",format=qcow2 \
+        -drive file="$SETUP/virtual_machine/$2",format=qcow2 \
         -boot d \
         -vga virtio \
         -display sdl;
@@ -50,7 +50,7 @@ function vm_run()
         -m 4096 \
         -cpu host \
         -smp 2 \
-        -drive file="$PWD/$1",format=qcow2,snapshot=on \
+        -drive file="$SETUP/virtual_machine/$1",format=qcow2,snapshot=on \
         -vga virtio \
         -display sdl \
         -spice port=5900,disable-ticketing=on \
