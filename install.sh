@@ -98,7 +98,7 @@ function SetZshConfigFile()
 
     local formatted_content="$(echo "$content" | sed -E "s/^[[:space:]]{$indentation}//")";
 
-    awk -v section="###################### $section ######################" -v content="$formatted_content" '
+    awk -v section="###################### $section ######################" -v content="\n$formatted_content" '
         {
             print;
             if ($0 ~ section) {
@@ -115,6 +115,7 @@ function SetZshConfigFile_Function            () { SetZshConfigFile "$1" "$2" "F
 
 ###################### SCRIPT ######################
 
+# DONE
 function InstallGnomeUIUtilities()
 {
     function InstallTweaks()
@@ -129,6 +130,7 @@ function InstallGnomeUIUtilities()
 
 function InstallApps()
 {
+    # DONE
     function InstallSteam()
     {
         function InstallSoftware()
@@ -162,6 +164,7 @@ function InstallApps()
         LaunchFirstUpdate ;
     };
 
+    # DONE
     function InstallDiscord()
     {
         function InstallSoftware()
@@ -222,6 +225,7 @@ function InstallApps()
 
     function InstallVsCode()
     {
+        # DONE
         function InstallSoftware()
         {
             function AddVsCodeRepository()
@@ -245,6 +249,7 @@ function InstallApps()
             sudo apt install -y code;
         };
 
+        # DONE
         function InstallExtensions()
         {
             extensions=(
@@ -281,6 +286,7 @@ function InstallApps()
             done
         };
 
+        # DONE
         function SettingKeyboardShortcuts()
         {
             function ConfigKeyboardShortcut()
@@ -307,6 +313,7 @@ function InstallApps()
             ConfigKeyboardShortcut "$keyboard_shortcut_path";
         };
 
+        # Not working
         function SettingIcons()
         {
             local settings_file='settings.json';
@@ -330,6 +337,7 @@ function InstallApps()
         SettingIcons             ;
     };
 
+    # DONE
     function InstallVirtualMachine()
     {
         function InstallSoftware()
@@ -369,12 +377,14 @@ function InstallCodingEcosystem()
             sudo apt install -y git;
         };
 
+        # Not working
         function ConfigLocalGit()
         {
             sudo git config --global user.name  "$GIT_USERNAME" ;
             sudo git config --global user.email "$GIT_EMAIL"    ;
         };
 
+        # Not working
         function CreateSSHKeyForGit()
         {
             local ssh_key_file="'$GIT_SSH_KEY_FILE'_ed25519";
@@ -392,12 +402,20 @@ function InstallCodingEcosystem()
         CreateSSHKeyForGit ;
     };
 
+    # NEED CHECKING
     function InstallNvm()
     {
         function InstallSoftware()
         {
+            function ManuallySourceNvm()
+            {
+                export NVM_DIR="$HOME/.nvm";
+                [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh";
+            };
+
             # Download and install nvm
             sudo curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash;
+            ManuallySourceNvm;
             # Install NodeJs and npm version
             sudo nvm install --lts;
         };
@@ -417,6 +435,7 @@ function InstallCodingEcosystem()
         ConfigNvmPath   ;
     };
 
+    # DONE
     function InstallPython()
     {
         function InstallSoftware()
@@ -435,6 +454,7 @@ function InstallCodingEcosystem()
         InstallDevelopmentTools ;
     };
 
+    # NEED CHECKING
     function InstallKotlin()
     {
         function InstallJVM()
@@ -460,7 +480,14 @@ function InstallCodingEcosystem()
         {
             function InstallSoftware()
             {
+                function ManuallySourceSdk()
+                {
+                    export SDKMAN_DIR="$HOME/.sdkman";
+                    [[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh";
+                };
+
                 sudo curl -s "https://get.sdkman.io" | bash;
+                ManuallySourceSdk;
                 sudo sdk install kotlin 1.8.20;
                 sudo sdk install gradle 8.12;
             };
@@ -492,6 +519,7 @@ function InstallCodingEcosystem()
 
 function ConfigSystemSettings()
 {
+    # DONE
     function SettingPowerBehavior()
     {
         function SettingPowerBehaviors_Dconf()
@@ -518,6 +546,7 @@ function ConfigSystemSettings()
         SettingPowerBehaviors_GSettings ;
     };
 
+    # DONE
     function SettingScreenBehavior()
     {
         function SettingScreenBehaviors_Dconf()
@@ -538,6 +567,7 @@ function ConfigSystemSettings()
         SettingScreenBehaviors_GSettings ;
     };
 
+    # DONE
     function SettingDesktopDock()
     {
         function SettingDesktopDock_Dconf()
@@ -591,6 +621,7 @@ function ConfigSystemSettings()
         SettingDesktopDock_GSettings "$formatted_icons" ;
     };
 
+    # DONE
     function SettingDesktop()
     {
         function SettingDesktop_Dconf()
@@ -615,6 +646,7 @@ function ConfigSystemSettings()
         SettingDesktop_GSettings ;
     };
 
+    # DONE
     function SettingDesktopTheme()
     {
         function SettingDesktopTheme_Dconf()
@@ -641,6 +673,7 @@ function ConfigSystemSettings()
         SettingDesktopTheme_GSettings ;
     };
 
+    # NEED CHECKING
     function InstallGPUDRivers()
     {
         function InstallNvidiaDrivers()
@@ -745,6 +778,7 @@ function ConfigSystemSettings()
 
 function InstallTerminalUtilities()
 {
+    # DONE
     function InstallZsh()
     {
         echo "Installing Zsh...";
@@ -752,6 +786,7 @@ function InstallTerminalUtilities()
         sudo apt install -y zsh;
     };
     
+    # DONE
     function InstallFzf()
     {
         echo "Installing Fzf...";
@@ -759,6 +794,7 @@ function InstallTerminalUtilities()
         sudo apt install -y fzf;
     };
     
+    # DONE
     function InstallTheFuck()
     {
         echo "Installing TheFuck...";
@@ -766,6 +802,7 @@ function InstallTerminalUtilities()
         sudo apt install -y thefuck;
     };
     
+    # DONE
     function InstallTree()
     {
         echo "Installing Tree...";
@@ -773,6 +810,7 @@ function InstallTerminalUtilities()
         sudo apt install -y tree;
     };
     
+    # DONE
     function InstallBTop()
     {
         echo "Installing BTop...";
@@ -780,6 +818,7 @@ function InstallTerminalUtilities()
         sudo apt install -y btop;
     };
 
+    # DONE
     function InstallNeofetch()
     {
         echo "Installing Neofetch...";
@@ -789,6 +828,7 @@ function InstallTerminalUtilities()
 
     function InstallYazi()
     {
+        # Not working
         function InstallSoftware()
         {
             if ! IsCommandExists busybox;
@@ -799,6 +839,7 @@ function InstallTerminalUtilities()
             sudo wget -qO- https://github.com/sxyazi/yazi/releases/latest/download/yazi-x86_64-unknown-linux-gnu.zip | sudo busybox unzip -q - -d "$USER_BINARIES_FOLDER";
         };
 
+        # Not working
         function ConfigYazi()
         {
             SetZshConfigFile_Alias 'alias nav=yazi' 0;
@@ -810,6 +851,7 @@ function InstallTerminalUtilities()
         ConfigYazi      ;
     };
 
+    # Not working
     function InstallPalette()
     {
         echo "Installing Palette...";
@@ -819,17 +861,20 @@ function InstallTerminalUtilities()
 
     function InstallOhMyZsh()
     {
+        # DONE
         function InstallSoftware()
         {
             CHSH=no RUNZSH=no sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)";
         };
 
+        # Not working
         function ConfigOhMyZsh()
         {
             SetZshConfigFile_Export 'export ZSH="$HOME/.oh-my-zsh"' 0 ;
             SetZshConfigFile_Source 'source $ZSH/oh-my-zsh.sh'      0 ;
         };
 
+        # DONE
         function InstallPlugins()
         {
             function InstallSoftware()
@@ -854,6 +899,7 @@ function InstallTerminalUtilities()
             ConfigZshPlugins ;
         };
 
+        # DONE
         function ModifyZSHConfigFileInSystem()
         {
             function LinkZshrc()
@@ -871,7 +917,7 @@ function InstallTerminalUtilities()
 
             function ConfigSetupPath()
             {
-                SetZshConfigFile_Export 'export SETUP="$HOME/Documents/Perso/Setup"' 0;
+                SetZshConfigFile_Export "export SETUP="$PWD"" 0;
             };
 
             LinkZshrc       ;
@@ -886,6 +932,7 @@ function InstallTerminalUtilities()
         ModifyZSHConfigFileInSystem ;
     };
 
+    # DONE
     function InstallOhMyPosh()
     {
         function InstallSoftware()
@@ -1010,6 +1057,7 @@ function InstallTerminalUtilities()
         InstallNerdFont ;
     };
 
+    # DONE
     function ChangeDefaultShellToZsh()
     {
         sudo chsh -s "$(which zsh)" "$USER";
