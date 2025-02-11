@@ -332,10 +332,8 @@ function InstallApps()
             then
                 sudo apt install -y jq;
             fi
-            
-            echo "Write icon change..."
 
-            sudo jq '. + {"workbench.iconTheme": "material-icon-theme"}' "$settings_path" > "$settings_temp_path" # && mv "$settings_temp_path" "$settings_path";
+            sudo jq '. + {"workbench.iconTheme": "material-icon-theme"}' "$settings_path" > "$settings_temp_path" && mv "$settings_temp_path" "$settings_path";
         };
         
         echo "Installing VsCode...";
@@ -389,6 +387,8 @@ function InstallCodingEcosystem()
         # Not working
         function ConfigLocalGit()
         {
+            echo "ConfigLocalGit";
+
             sudo git config --global user.name  "$GIT_USERNAME" ;
             sudo git config --global user.email "$GIT_EMAIL"    ;
         };
@@ -522,9 +522,9 @@ function InstallCodingEcosystem()
     };
 
     InstallGit    ;
-    InstallNvm    ;
+    #InstallNvm    ;
     #InstallPython ;
-    InstallKotlin ;
+    #InstallKotlin ;
 };
 
 function ConfigSystemSettings()
@@ -1106,9 +1106,9 @@ then
 
     #InstallGnomeUIUtilities  ;
     InstallApps              ;
-    InstallCodingEcosystem   ;
+    #InstallCodingEcosystem   ;
     #ConfigSystemSettings     ;
-    InstallTerminalUtilities ;
+    #InstallTerminalUtilities ;
 
     RemoveIncreaseSudoEffectiveness;
     
