@@ -455,14 +455,17 @@ function InstallCodingEcosystem()
 
             # Download and install nvm
             sudo curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash;
+            echo "Manual source"
             ManuallySourceNvm;
             # Install NodeJs and npm version
+            echo "Instamm node and npm"
             sudo nvm install --lts;
         };
 
         # DONE
         function ConfigNvmPath()
         {
+            echo "Config nvm path"
             SetZshConfigFile_Export '
                 export NVM_DIR="$HOME/.nvm"
                 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
