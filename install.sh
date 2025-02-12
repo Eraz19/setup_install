@@ -442,7 +442,7 @@ function InstallCodingEcosystem()
         CreateSSHKeyForGitHub ;
     };
 
-    # Not working
+    # DONE
     function InstallNvm()
     {
         function InstallSoftware()
@@ -455,17 +455,13 @@ function InstallCodingEcosystem()
 
             # Download and install nvm
             sudo curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash;
-            echo "Manual source"
             ManuallySourceNvm;
             # Install NodeJs and npm version
-            echo "Instamm node and npm"
             nvm install --lts;
         };
 
-        # DONE
         function ConfigNvmPath()
         {
-            echo "Config nvm path"
             SetZshConfigFile_Export '
                 export NVM_DIR="$HOME/.nvm"
                 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
@@ -532,8 +528,8 @@ function InstallCodingEcosystem()
 
                 sudo curl -s "https://get.sdkman.io" | bash;
                 ManuallySourceSdk;
-                sudo sdk install kotlin 1.8.20;
-                sudo sdk install gradle 8.12;
+                sdk install kotlin 1.8.20;
+                sdk install gradle 8.12;
             };
 
             function ConfigSdkManPath()
@@ -556,9 +552,9 @@ function InstallCodingEcosystem()
     };
 
     #InstallGit    ;
-    InstallNvm    ;
+    #InstallNvm    ;
     #InstallPython ;
-    #InstallKotlin ;
+    InstallKotlin ;
 };
 
 function ConfigSystemSettings()
