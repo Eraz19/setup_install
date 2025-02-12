@@ -393,7 +393,16 @@ function InstallCodingEcosystem()
                 local ssh_key_path="$1";
 
                 mkdir -p "$SSH_KEYS_FOLDER";
-                sudo ssh-keygen -t ed25519 -C "$GIT_EMAIL" -f "$ssh_key_path" -N "";
+
+                if [[ ! -f "$ssh_key_path" ]];
+                then
+                    ssh-keygen -t ed25519 -C "$GIT_EMAIL" -f "$ssh_key_path" -N "";
+                fi
+            };
+
+            function AddSSHKeyInKnownHost()
+            {
+                ssh-keyscan github.com >> $SSH_KEYS_FOLDER/known_hosts;
             };
 
             function LinkSSHKeyInGitHub()
@@ -418,13 +427,16 @@ function InstallCodingEcosystem()
                 else
                     echo "❌ Failed to add SSH key. HTTP response: $reponse";
                 fi
+
+                ssh -T git@github.com;
             };
 
             local ssh_key_file="$GIT_SSH_KEY_FILE"'_ed25519';
             local ssh_key_path="$SSH_KEYS_FOLDER/$ssh_key_file";
 
-            CreateSSHKey       "$ssh_key_path";
-            LinkSSHKeyInGitHub "$ssh_key_path";
+            CreateSSHKey         "$ssh_key_path" ;
+            AddSSHKeyInKnownHost                 ;
+            LinkSSHKeyInGitHub   "$ssh_key_path" ;
         };
 
         echo "Installing Git...";
