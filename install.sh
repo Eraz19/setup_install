@@ -371,9 +371,9 @@ function InstallApps()
     InstallVirtualMachine ;
 };
 
+# DONE
 function InstallCodingEcosystem()
 {
-    # DONE
     function InstallGit()
     {
         function InstallSoftware()
@@ -442,7 +442,6 @@ function InstallCodingEcosystem()
         CreateSSHKeyForGitHub ;
     };
 
-    # DONE
     function InstallNvm()
     {
         function InstallSoftware()
@@ -475,7 +474,6 @@ function InstallCodingEcosystem()
         ConfigNvmPath   ;
     };
 
-    # DONE
     function InstallPython()
     {
         function InstallSoftware()
@@ -494,7 +492,6 @@ function InstallCodingEcosystem()
         InstallDevelopmentTools ;
     };
 
-    # Not working
     function InstallKotlin()
     {
         function InstallJVM()
@@ -551,9 +548,9 @@ function InstallCodingEcosystem()
         InstallKotlinToolchain ;
     };
 
-    #InstallGit    ;
-    #InstallNvm    ;
-    #InstallPython ;
+    InstallGit    ;
+    InstallNvm    ;
+    InstallPython ;
     InstallKotlin ;
 };
 
@@ -1113,7 +1110,7 @@ function InstallTerminalUtilities()
         sudo chsh -s "$(which zsh)" "$USER";
     };
 
-    #InstallZsh              ;
+    InstallZsh              ;
     #InstallFzf              ;
     #InstallTheFuck          ;
     #InstallTree             ;
@@ -1123,7 +1120,7 @@ function InstallTerminalUtilities()
     InstallPalette          ;
     #InstallOhMyZsh          ;
     #InstallOhMyPosh         ;
-    #ChangeDefaultShellToZsh ;
+    ChangeDefaultShellToZsh ;
 };
 
 sudo -v;
@@ -1136,9 +1133,9 @@ then
 
     #InstallGnomeUIUtilities  ;
     #InstallApps              ;
-    InstallCodingEcosystem   ;
+    #InstallCodingEcosystem   ;
     #ConfigSystemSettings     ;
-    #InstallTerminalUtilities ;
+    InstallTerminalUtilities ;
 
     RemoveIncreaseSudoEffectiveness;
 
