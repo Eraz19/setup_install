@@ -37,6 +37,7 @@ function CheckScriptEnvironmentVariables()
     local env_variables_path="$PWD/$env_variables_file";
 
     local required_env_variables=(
+        'GIT_TOKEN'
         'GIT_USERNAME'
         'GIT_EMAIL'
         'GIT_SSH_KEY_FILE'
@@ -378,33 +379,56 @@ function InstallCodingEcosystem()
             sudo apt install -y git;
         };
 
-        # Not working
         function ConfigLocalGit()
         {
-            echo "ConfigLocalGit...";
-
             sudo git config --global user.name  "$GIT_USERNAME" ;
             sudo git config --global user.email "$GIT_EMAIL"    ;
         };
 
         # Not working
-        function CreateSSHKeyForGit()
+        function CreateSSHKeyForGitHub()
         {
+            function CreateSSHKey()
+            {
+                local ssh_key_path="$1";
+
+                mkdir -p "$SSH_KEYS_FOLDER";
+                sudo ssh-keygen -t ed25519 -C "$GIT_EMAIL" -f "$ssh_key_path" -N "";
+            };
+
+            function LinkSSHKeyInGitHub()
+            {
+                local ssh_key_path="$1";
+
+                # Before all these steps add a GitHub token and add it in the .env (https://github.com/settings/tokens)
+                local ssh_key_content=$(cat "$ssh_key_path.pub");
+                local ssh_key_title="Linux_Machine - $(date +'%Y-%m-%d')";
+                local reponse=$(curl -s -o /dev/null -w "%{http_code}" -u "$GIT_USERNAME:$GIT_TOKEN" \
+                    --request POST \
+                    --url "https://api.github.com/user/keys" \
+                    --header "Content-Type: application/json" \
+                    --data "{\"title\":\"$ssh_key_title\",\"key\":\"$ssh_key_content\"}")
+
+                if [[ "$reponse" == "201" ]];
+                then
+                    echo "✅ SSH key added to GitHub successfully!";
+                else
+                    echo "❌ Failed to add SSH key. HTTP response: $reponse";
+                fi
+            };
+
             local ssh_key_file="$GIT_SSH_KEY_FILE"'_ed25519';
             local ssh_key_path="$SSH_KEYS_FOLDER/$ssh_key_file";
 
-            mkdir -p "$SSH_KEYS_FOLDER";
-
-            sudo ssh-keygen -t ed25519 -C "$GIT_EMAIL" -f "$ssh_key_path" -N "";
-            sudo eval "$(ssh-agent -s)";
-            sudo ssh-add "$ssh_key_path";
+            CreateSSHKey       "$ssh_key_path";
+            LinkSSHKeyInGitHub "$ssh_key_path";
         };
 
         echo "Installing Git...";
 
-        InstallSoftware    ;
-        ConfigLocalGit     ;
-        CreateSSHKeyForGit ;
+        InstallSoftware       ;
+        ConfigLocalGit        ;
+        CreateSSHKeyForGitHub ;
     };
 
     # Not working
