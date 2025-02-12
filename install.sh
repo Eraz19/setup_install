@@ -875,7 +875,7 @@ function InstallTerminalUtilities()
                 sudo apt install -y unzip;
             fi
 
-            sudo mkdir -p "$$USER_BINARIES_FOLDER/yazi";
+            sudo mkdir -p "$USER_BINARIES_FOLDER/yazi";
 
             echo "Download Yazi"
             sudo wget -qO "$zip_download_path" https://github.com/sxyazi/yazi/releases/latest/download/yazi-x86_64-unknown-linux-gnu.zip;
