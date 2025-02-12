@@ -1139,5 +1139,5 @@ then
 
     RemoveIncreaseSudoEffectiveness;
 
-    #gnome-session-quit --logout --no-prompt;
+    gnome-session-quit --logout --no-prompt;
 fi
