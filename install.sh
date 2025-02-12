@@ -875,9 +875,15 @@ function InstallTerminalUtilities()
                 sudo apt install -y unzip;
             fi
 
+            sudo mkdir -p "$$USER_BINARIES_FOLDER/yazi";
+
+            echo "Download Yazi"
             sudo wget -qO "$zip_download_path" https://github.com/sxyazi/yazi/releases/latest/download/yazi-x86_64-unknown-linux-gnu.zip;
+            echo "Unzip Yazi"
             sudo unzip -q "$zip_download_path" -d "$USER_BINARIES_FOLDER";
+            echo "Remove temp file"
             sudo rm -f "$zip_download_path";
+            echo "Change permissions"
             sudo chmod +x "$USER_BINARIES_FOLDER/yazi";
         };
 
