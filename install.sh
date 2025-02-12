@@ -113,7 +113,6 @@ function SetZshConfigFile_Source              () { SetZshConfigFile "$1" "$2" "S
 function SetZshConfigFile_Export              () { SetZshConfigFile "$1" "$2" "EXPORT"                ; } ;
 function SetZshConfigFile_Alias               () { SetZshConfigFile "$1" "$2" "ALIAS"                 ; } ;
 function SetZshConfigFile_EnvironmentVariables() { SetZshConfigFile "$1" "$2" "ENVIRONMENT_VARIABLES" ; } ;
-function SetZshConfigFile_Function            () { SetZshConfigFile "$1" "$2" "FUNCTION"              ; } ;
 
 ###################### SCRIPT ######################
 
@@ -896,7 +895,7 @@ function InstallTerminalUtilities()
         echo "Installing Palette...";
 
         SetZshConfigFile_Alias '
-            alias palette="for i in {0..255}; do printf "\e[48;5;%sm %03d " $i $i; [ $(( (i+1) % 6 )) -eq 0 ] && echo ""; done; echo -e "\e[0m""
+            alias palette='\''for i in {0..255}; do printf "\e[48;5;%sm %03d " $i $i; [ $(( (i+1) % 6 )) -eq 0 ] && echo ""; done; echo -e "\e[0m"'\''
         ' 12;
     };
 
