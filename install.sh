@@ -902,7 +902,7 @@ function InstallTerminalUtilities()
 
     # DONE
     function InstallOhMyZsh()
-    {    
+    {
         function InstallSoftware()
         {
             CHSH=no RUNZSH=no sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)";
@@ -971,9 +971,9 @@ function InstallTerminalUtilities()
 
         echo "Installing Oh-My-Zsh...";
 
-        InstallSoftware             ;
-        ConfigOhMyZsh               ;
-        InstallPlugins              ;
+        #InstallSoftware             ;
+        #ConfigOhMyZsh               ;
+        #InstallPlugins              ;
         ModifyZSHConfigFileInSystem ;
     };
 
@@ -1118,7 +1118,7 @@ function InstallTerminalUtilities()
     #InstallNeofetch         ;
     InstallYazi             ;
     InstallPalette          ;
-    #InstallOhMyZsh          ;
+    InstallOhMyZsh          ;
     #InstallOhMyPosh         ;
     ChangeDefaultShellToZsh ;
 };
