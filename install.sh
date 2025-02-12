@@ -409,6 +409,9 @@ function InstallCodingEcosystem()
                     --header "Content-Type: application/json" \
                     --data "{\"title\":\"$ssh_key_title\",\"key\":\"$ssh_key_content\"}")
 
+                echo "key_content: $ssh_key_content";
+                echo "key_title: $ssh_key_title";
+
                 if [[ "$reponse" == "201" ]];
                 then
                     echo "✅ SSH key added to GitHub successfully!";
