@@ -41,6 +41,7 @@ function CheckScriptEnvironmentVariables()
         'GIT_USERNAME'
         'GIT_EMAIL'
         'GIT_SSH_KEY_FILE'
+        'GIT_SSH_KEY_TITLE'
     );
 
     if ! ImportEnvironmentVariables "$env_variables_path";
@@ -151,7 +152,7 @@ function InstallApps()
                         pkill -f steam;
                         break;
                     fi
-                    
+
                     sleep 2;
                 done
             };
@@ -160,7 +161,7 @@ function InstallApps()
         };
 
         echo "Installing Steam...";
-        
+
         InstallSoftware   ;
         LaunchFirstUpdate ;
     };
@@ -197,7 +198,7 @@ function InstallApps()
                         for window_id in $window_ids;
                         do
                             local window_name=$(xdotool getwindowname "$window_id" 2>/dev/null);
-                            
+
                             if [[ -n "$window_name" && "$window_name" =~ discordapp\.com/app\?_=([0-9]+)\ -\ Discord ]];
                             then
                                 is_login_window_visible=true;
@@ -331,7 +332,7 @@ function InstallApps()
 
             sudo jq '. + {"workbench.iconTheme": "material-icon-theme"}' "$settings_path" > "$settings_temp_path" && mv -f "$settings_temp_path" "$settings_path";
         };
-        
+
         echo "Installing VsCode...";
 
         InstallSoftware          ;
@@ -359,7 +360,7 @@ function InstallApps()
         };
 
         echo "Installing VirtualMachine...";
-        
+
         InstallSoftware              ;
         ConfigVirtualMachineCommands ;
     };
@@ -372,6 +373,7 @@ function InstallApps()
 
 function InstallCodingEcosystem()
 {
+    # DONE
     function InstallGit()
     {
         function InstallSoftware()
@@ -385,7 +387,6 @@ function InstallCodingEcosystem()
             sudo git config --global user.email "$GIT_EMAIL"    ;
         };
 
-        # Not working
         function CreateSSHKeyForGitHub()
         {
             function CreateSSHKey()
@@ -411,15 +412,12 @@ function InstallCodingEcosystem()
 
                 # Before all these steps add a GitHub token and add it in the .env (https://github.com/settings/tokens)
                 local ssh_key_content=$(cat "$ssh_key_path.pub");
-                local ssh_key_title="Linux_Machine - $(date +'%Y-%m-%d')";
+                local ssh_key_title="$GIT_SSH_KEY_TITLE";
                 local reponse=$(curl -s -o /dev/null -w "%{http_code}" -u "$GIT_USERNAME:$GIT_TOKEN" \
                     --request POST \
                     --url "https://api.github.com/user/keys" \
                     --header "Content-Type: application/json" \
                     --data "{\"title\":\"$ssh_key_title\",\"key\":\"$ssh_key_content\"}")
-
-                echo "key_content: $ssh_key_content";
-                echo "key_title: $ssh_key_title";
 
                 if [[ "$reponse" == "201" ]];
                 then
@@ -427,8 +425,6 @@ function InstallCodingEcosystem()
                 else
                     echo "❌ Failed to add SSH key. HTTP response: $reponse";
                 fi
-
-                ssh -T git@github.com;
             };
 
             local ssh_key_file="$GIT_SSH_KEY_FILE"'_ed25519';
@@ -475,7 +471,7 @@ function InstallCodingEcosystem()
         };
 
         echo "Installing Nvm toolchain (including nodeJS and npm)..."
-        
+
         InstallSoftware ;
         ConfigNvmPath   ;
     };
@@ -556,8 +552,8 @@ function InstallCodingEcosystem()
         InstallKotlinToolchain ;
     };
 
-    InstallGit    ;
-    #InstallNvm    ;
+    #InstallGit    ;
+    InstallNvm    ;
     #InstallPython ;
     #InstallKotlin ;
 };
@@ -646,7 +642,7 @@ function ConfigSystemSettings()
         function FormatGSettingIconsList()
         {
             local array=("$@");
-            
+
             printf -v formatted "'%s'," "${array[@]}";
             echo "[${formatted%,}]";
         };
@@ -698,7 +694,7 @@ function ConfigSystemSettings()
         {
             dconf write /org/gnome/desktop/background/picture-uri-dark "'file:///usr/share/backgrounds/pop/nick-nazzaro-ice-cave.png'" ;
             dconf write /org/gnome/desktop/screensaver/picture-uri     "'file:///usr/share/backgrounds/pop/nick-nazzaro-ice-cave.png'" ;
-            
+
             dconf write /org/gnome/desktop/interface/color-scheme  "'prefer-dark'" ;
             dconf write /org/gnome/desktop/interface/gtk-theme     "'Pop-dark'"    ;
             dconf write /org/gnome/gedit/preferences/editor/scheme "'pop-dark'"    ;
@@ -781,9 +777,9 @@ function ConfigSystemSettings()
                 local current_gpu=$(glxinfo | grep "OpenGL renderer string" | awk -F': ' '{print $2}');
 
                 if [[ "$current_gpu" == *"llvmpipe"* ]];
-                then    
+                then
                     sudo modprobe amdgpu;
-                    echo 'export DRI_PRIME=1' | sudo tee -a /etc/environment > /dev/null;            
+                    echo 'export DRI_PRIME=1' | sudo tee -a /etc/environment > /dev/null;
                 fi
             };
 
@@ -843,7 +839,7 @@ function InstallTerminalUtilities()
     function InstallTheFuck()
     {
         echo "Installing TheFuck...";
-        
+
         sudo apt install -y thefuck;
     };
     
@@ -854,7 +850,7 @@ function InstallTerminalUtilities()
 
         sudo apt install -y tree;
     };
-    
+
     # DONE
     function InstallBTop()
     {
@@ -1047,17 +1043,17 @@ function InstallTerminalUtilities()
                 sudo mkdir -p "$system_nerd_font_path";
 
                 for nerd_font_name in "${nerd_font_names[@]}";
-                do                
+                do
                     local font_url="https://github.com/ryanoasis/nerd-fonts/releases/latest/download/$nerd_font_name.zip";
                     local font_temp_path="$DOWNLOAD_FOLDER/$nerd_font_name.zip";
-                    
+
                     wget -q --show-progress "$font_url" -O "$font_temp_path";
-                    
+
                     if [ $? -eq 0 ];
                     then
                         sudo unzip -o "$font_temp_path" -d "$system_nerd_font_path";
                     fi
-                    
+
                     rm "$font_temp_path";
                 done
             };
@@ -1106,7 +1102,7 @@ function InstallTerminalUtilities()
         };
 
         echo "Installing Oh-My-Posh...";
-        
+
         InstallSoftware ;
         ConfigOhMyPosh  ;
         InstallNerdFont ;
@@ -1146,6 +1142,6 @@ then
     #InstallTerminalUtilities ;
 
     RemoveIncreaseSudoEffectiveness;
-    
+
     #gnome-session-quit --logout --no-prompt;
 fi
