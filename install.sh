@@ -459,7 +459,7 @@ function InstallCodingEcosystem()
             ManuallySourceNvm;
             # Install NodeJs and npm version
             echo "Instamm node and npm"
-            sudo nvm install --lts;
+            nvm install --lts;
         };
 
         # DONE
