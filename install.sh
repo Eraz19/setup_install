@@ -937,68 +937,76 @@ function InstallTerminalUtilities()
 #        InstallSoftware     ;
 #        ConfigYazi          ;
 
-        GLIBC_VERSION="2.39"
-        GLIBC_PREFIX="/opt/glibc-${GLIBC_VERSION}"
-        USER_BINARIES_FOLDER="/usr/local/bin"
-        DOWNLOAD_FOLDER="$HOME/Downloads"
-        YAZI_URL="https://github.com/sxyazi/yazi/releases/latest/download/yazi-x86_64-unknown-linux-gnu.zip"
 
-        # Ensure required dependencies
-        sudo apt update && sudo apt install -y wget unzip build-essential manpages-dev libgcc-s1
+    GLIBC_VERSION="2.39"
+    GLIBC_PREFIX="/opt/glibc-${GLIBC_VERSION}"
+    GLIBC_SRC_DIR="/usr/src/glibc-${GLIBC_VERSION}"
+    GLIBC_TAR="glibc-${GLIBC_VERSION}.tar.gz"
+    GLIBC_URL="http://ftp.gnu.org/gnu/libc/${GLIBC_TAR}"
 
-        # 1️⃣ Install GLIBC 2.39
-        if [ ! -d "$GLIBC_PREFIX" ]; then
-            echo "Installing GLIBC ${GLIBC_VERSION}..."
-            cd /usr/src
-            sudo rm -rf glibc-${GLIBC_VERSION}
-            sudo wget http://ftp.gnu.org/gnu/libc/glibc-${GLIBC_VERSION}.tar.gz
-            sudo tar -xvf glibc-${GLIBC_VERSION}.tar.gz
-            cd glibc-${GLIBC_VERSION}
+    YAZI_REPO="https://github.com/sxyazi/yazi"
+    YAZI_BIN="/usr/local/bin/yazi"
 
-            sudo mkdir -p build
-            cd build
-            sudo ../configure --prefix="$GLIBC_PREFIX"
-            sudo make -j$(nproc)
-            sudo make install
-        fi
+    echo "🔄 Updating system..."
+    sudo apt update
 
-        # 2️⃣ Ensure libgcc_s.so.1 is available
-        LIBGCC_PATH=$(find /usr -name "libgcc_s.so.1" 2>/dev/null | head -n 1)
-        if [ -z "$LIBGCC_PATH" ]; then
-            echo "libgcc_s.so.1 not found. Installing libgcc-s1..."
-            sudo apt install -y libgcc-s1
-            LIBGCC_PATH=$(find /usr -name "libgcc_s.so.1" 2>/dev/null | head -n 1)
-        fi
+    # Step 1: Install dependencies
+    echo "📦 Installing required packages..."
+    sudo apt install -y build-essential manpages-dev wget git unzip
 
-        if [ ! -f "$GLIBC_PREFIX/lib/libgcc_s.so.1" ]; then
-            echo "Linking libgcc_s.so.1..."
-            sudo ln -sf "$LIBGCC_PATH" "$GLIBC_PREFIX/lib/libgcc_s.so.1"
-        fi
+    # Step 2: Remove old GLIBC (if exists)
+    echo "🛑 Removing old GLIBC installation..."
+    sudo rm -rf ${GLIBC_PREFIX} ${GLIBC_SRC_DIR}
 
-        # 3️⃣ Install Yazi
-        echo "Installing Yazi..."
-        mkdir -p "$DOWNLOAD_FOLDER"
-        wget -qO "$DOWNLOAD_FOLDER/yazi.zip" "$YAZI_URL"
-        sudo unzip -qo "$DOWNLOAD_FOLDER/yazi.zip" -d "$USER_BINARIES_FOLDER"
-        rm -f "$DOWNLOAD_FOLDER/yazi.zip"
-        sudo chmod +x "$USER_BINARIES_FOLDER/yazi"
+    # Step 3: Download and extract GLIBC
+    echo "⬇️ Downloading GLIBC ${GLIBC_VERSION}..."
+    cd /usr/src
+    sudo wget -q ${GLIBC_URL}
+    sudo tar -xvf ${GLIBC_TAR}
 
-        # 4️⃣ Create a wrapper script to ensure Yazi runs with the correct GLIBC
-        echo "Creating Yazi launcher script..."
-        echo "#!/bin/bash
-        $GLIBC_PREFIX/lib/ld-${GLIBC_VERSION}.so --library-path $GLIBC_PREFIX/lib $USER_BINARIES_FOLDER/yazi \"\$@\"" | sudo tee /usr/local/bin/yazi-launcher > /dev/null
-        sudo chmod +x /usr/local/bin/yazi-launcher
+    # Step 4: Build and install GLIBC
+    echo "🔨 Building GLIBC ${GLIBC_VERSION}..."
+    cd ${GLIBC_SRC_DIR}
+    sudo mkdir -p build
+    cd build
+    sudo ../configure --prefix=${GLIBC_PREFIX}
+    sudo make -j$(nproc)
+    sudo make install
 
-        # 5️⃣ Add alias for convenience
-        if ! grep -q "alias yazi=" ~/.zshrc; then
-            echo "alias yazi='/usr/local/bin/yazi-launcher'" >> ~/.zshrc
-        fi
-        if ! grep -q "alias yazi=" ~/.bashrc; then
-            echo "alias yazi='/usr/local/bin/yazi-launcher'" >> ~/.bashrc
-        fi
+    # Step 5: Verify GLIBC installation
+    if [ -f "${GLIBC_PREFIX}/lib/ld-2.39.so" ]; then
+        echo "✅ GLIBC ${GLIBC_VERSION} installed successfully!"
+    else
+        echo "❌ GLIBC installation failed!"
+        exit 1
+    fi
 
-        echo "✅ Yazi installed successfully!"
-        echo "Run 'yazi' in a new terminal session to start."
+    # Step 6: Install Yazi
+    echo "⬇️ Downloading and installing Yazi..."
+    if [ -d "$HOME/yazi" ]; then
+        rm -rf "$HOME/yazi"
+    fi
+    git clone --depth=1 ${YAZI_REPO} "$HOME/yazi"
+    cd "$HOME/yazi"
+    cargo install --path .
+
+    # Step 7: Move Yazi binary to /usr/local/bin
+    sudo cp "$HOME/.cargo/bin/yazi" ${YAZI_BIN}
+    sudo chmod +x ${YAZI_BIN}
+
+    # Step 8: Create a wrapper script for Yazi
+    echo "🔧 Creating Yazi wrapper script..."
+    echo "#!/bin/bash" | sudo tee /usr/local/bin/yazi-launcher > /dev/null
+    echo "${GLIBC_PREFIX}/lib/ld-linux-x86-64.so.2 --library-path ${GLIBC_PREFIX}/lib ${YAZI_BIN} \"\$@\"" | sudo tee -a /usr/local/bin/yazi-launcher > /dev/null
+    sudo chmod +x /usr/local/bin/yazi-launcher
+
+    # Step 9: Verify Yazi installation
+    echo "🚀 Testing Yazi..."
+    /usr/local/bin/yazi-launcher --version
+
+    echo "🎉 Yazi installed and running with GLIBC ${GLIBC_VERSION}!"
+    echo "Run it using: yazi-launcher"
+
     };
 
     # DONE
