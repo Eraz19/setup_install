@@ -889,7 +889,7 @@ function InstallTerminalUtilities()
         ConfigYazi      ;
     };
 
-    # Not working
+    # DONE
     function InstallPalette()
     {
         echo "Installing Palette...";
@@ -970,9 +970,9 @@ function InstallTerminalUtilities()
 
         echo "Installing Oh-My-Zsh...";
 
-        #InstallSoftware             ;
-        #ConfigOhMyZsh               ;
-        #InstallPlugins              ;
+        InstallSoftware             ;
+        ConfigOhMyZsh               ;
+        InstallPlugins              ;
         ModifyZSHConfigFileInSystem ;
     };
 
@@ -1109,17 +1109,17 @@ function InstallTerminalUtilities()
         sudo chsh -s "$(which zsh)" "$USER";
     };
 
-    InstallZsh              ;
+    #InstallZsh              ;
     #InstallFzf              ;
     #InstallTheFuck          ;
     #InstallTree             ;
     #InstallBTop             ;
     #InstallNeofetch         ;
     InstallYazi             ;
-    InstallPalette          ;
-    InstallOhMyZsh          ;
+    #InstallPalette          ;
+    #InstallOhMyZsh          ;
     #InstallOhMyPosh         ;
-    ChangeDefaultShellToZsh ;
+    #ChangeDefaultShellToZsh ;
 };
 
 sudo -v;
@@ -1138,5 +1138,5 @@ then
 
     RemoveIncreaseSudoEffectiveness;
 
-    gnome-session-quit --logout --no-prompt;
+    #gnome-session-quit --logout --no-prompt;
 fi
