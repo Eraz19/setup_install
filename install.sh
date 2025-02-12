@@ -867,12 +867,18 @@ function InstallTerminalUtilities()
         # Not working
         function InstallSoftware()
         {
-            if ! IsCommandExists busybox;
+            local zip_download_file="yazi.zip";
+            local zip_download_path="$DOWNLOAD_FOLDER/$zip_download_file";
+            
+            if ! IsCommandExists unzip;
             then
-                sudo apt install -y busybox;
+                sudo apt install -y unzip;
             fi
 
-            sudo wget -qO- https://github.com/sxyazi/yazi/releases/latest/download/yazi-x86_64-unknown-linux-gnu.zip | sudo busybox unzip -q - -d "$USER_BINARIES_FOLDER";
+            sudo wget -qO "$zip_download_path" https://github.com/sxyazi/yazi/releases/latest/download/yazi-x86_64-unknown-linux-gnu.zip;
+            sudo unzip -q "$zip_download_path" -d "$USER_BINARIES_FOLDER";
+            sudo rm -f "$zip_download_path";
+            sudo chmod +x "$USER_BINARIES_FOLDER/yazi";
         };
 
         # DONE
