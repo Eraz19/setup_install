@@ -1122,6 +1122,7 @@ function InstallTerminalUtilities()
     #InstallTree             ;
     #InstallBTop             ;
     #InstallNeofetch         ;
+    InstallYazi             ;
     #InstallPalette          ;
     InstallOhMyZsh          ;
     #InstallOhMyPosh         ;
