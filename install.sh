@@ -237,8 +237,10 @@ function InstallApps()
                 local gpg_key_path="$SYSTEM_APT_GPG_KEYS_FOLDER/$gpg_key_file";
                 local repository_list_path="$SYSTEM_APT_REPOSITORY_LIST_FOLDER/$repository_list_file";
 
-                wget -qO- https://packages.microsoft.com/keys/microsoft.asc | sudo gpg --dearmor > "$gpg_key_path";
-                sudo echo "deb [arch=amd64 signed-by="$gpg_key_path"] https://packages.microsoft.com/repos/code stable main" | sudo tee "$repository_list_path";
+                wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor | sudo tee "$gpg_key_path" > /dev/null;
+                echo "deb [arch=amd64 signed-by=$gpg_key_path] https://packages.microsoft.com/repos/code stable main" | sudo tee "$repository_list_path";
+                #wget -qO- https://packages.microsoft.com/keys/microsoft.asc | sudo gpg --dearmor > "$gpg_key_path";
+                #sudo echo "deb [arch=amd64 signed-by="$gpg_key_path"] https://packages.microsoft.com/repos/code stable main" | sudo tee "$repository_list_path";
             };
 
             AddVsCodeRepository;
@@ -384,8 +386,10 @@ function InstallApps()
             local gpg_key_path="$SYSTEM_APT_GPG_KEYS_FOLDER/$gpg_key_file";
             local repository_list_path="$SYSTEM_APT_REPOSITORY_LIST_FOLDER/$repository_list_file";
 
-            curl -sS https://download.spotify.com/debian/pubkey_C85668DF69375001.gpg | sudo gpg --dearmor --yes -o "$gpg_key_path";
-            sudo echo "deb http://repository.spotify.com stable non-free" | sudo tee "$repository_list_path";
+            curl -sS https://download.spotify.com/debian/pubkey_C85668DF69375001.gpg | gpg --dearmor | sudo tee "$gpg_key_path" > /dev/null;
+            echo "deb [signed-by=$gpg_key_path] http://repository.spotify.com stable non-free" | sudo tee "$repository_list_path";
+            #curl -sS https://download.spotify.com/debian/pubkey_C85668DF69375001.gpg | sudo gpg --dearmor --yes -o "$gpg_key_path";
+            #sudo echo "deb http://repository.spotify.com stable non-free" | sudo tee "$repository_list_path";
         };
 
         echo "Installing Spotify...";
