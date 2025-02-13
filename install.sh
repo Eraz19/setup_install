@@ -937,16 +937,26 @@ function InstallTerminalUtilities()
 #        InstallSoftware     ;
 #        ConfigYazi          ;
 
-        sudo apt install -y build-essential curl git unzip zsh gawk bison
 
-        sudo apt install -y bash
+        sudo apt install -y build-essential curl git unzip zsh gawk bison bash
+
+        # Step 2: Install Rust & Cargo
         curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | bash -s -- -y
 
-        echo 'export PATH="$HOME/.cargo/bin:$PATH"' >> ~/.bashrc
-        source ~/.bashrc
-        
-        cargo install yazi --locked
+        # Step 3: Load Cargo Immediately
+        . "$HOME/.cargo/env"
+        source "$HOME/.cargo/env"
+
+
+        # Step 4: Install Yazi from GitHub
+        cargo install --git https://github.com/sxyazi/yazi --locked
+
+        # Step 5: Ensure Cargo is always available
+        echo 'export PATH="$HOME/.cargo/bin:$PATH"' >> ~/.zshrc
+
+        # Step 6: Verify Installation
         yazi --version
+
     };
 
     # DONE
