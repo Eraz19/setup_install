@@ -8,10 +8,13 @@ DOWNLOAD_FOLDER="$HOME/Downloads";
 SYSTEM_BINARIES_FOLDER="/usr/bin";
 
 SYSTEM_SHARED_RESSOURCE_FOLDER="/usr/share";
-SYSTEM_SHARED_APPLICATION_ICON_CONFIG_FOLDER="$SYSTEM_SHARED_RESSOURCE_FOLDER/applications";
-SYSTEM_SHARED_GPG_KEYS_FOLDER="$SYSTEM_SHARED_RESSOURCE_FOLDER/keyrings";
-SYSTEM_SHARED_ICONS_FOLDER="$SYSTEM_SHARED_RESSOURCE_FOLDER/icons";
 SYSTEM_SHARED_FONT_FOLDER="$SYSTEM_SHARED_RESSOURCE_FOLDER/fonts";
+SYSTEM_SHARED_ICONS_FOLDER="$SYSTEM_SHARED_RESSOURCE_FOLDER/icons";
+SYSTEM_SHARED_APPLICATION_ICON_CONFIG_FOLDER="$SYSTEM_SHARED_RESSOURCE_FOLDER/applications";
+
+SYSTEM_APT_CONFIGURATION_FOLDER="/etc/apt";
+SYSTEM_APT_GPG_KEYS_FOLDER="$SYSTEM_APT_CONFIGURATION_FOLDER/trusted.gpg.d";
+SYSTEM_APT_REPOSITORY_LIST_FOLDER="$SYSTEM_APT_CONFIGURATION_FOLDER/sources.list.d";
 
 USER_BINARIES_FOLDER="/usr/local/bin";
 
@@ -230,18 +233,12 @@ function InstallApps()
             function AddVsCodeRepository()
             {
                 local gpg_key_file="packages.microsoft.gpg";
-                local gpg_key_temp_file="packages.microsoft.gpg.tmp";
-                local gpg_key_path="$SYSTEM_SHARED_GPG_KEYS_FOLDER/$gpg_key_file";
-                local gpg_key_temp_path="$DOWNLOAD_FOLDER/$gpg_key_temp_file";
+                local repository_list_file="vscode.list";
+                local gpg_key_path="$SYSTEM_APT_GPG_KEYS_FOLDER/$gpg_key_file";
+                local repository_list_path="$SYSTEM_APT_REPOSITORY_LIST_FOLDER/$repository_list_file";
 
-                # Download gpg key
-                sudo wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > "$gpg_key_temp_path";
-                # Move gpg key into standard location
-                sudo mkdir -p "$gpg_key_path";
-                sudo install -o root -g root -m 644 "$gpg_key_temp_path" "$gpg_key_path";
-                # Add VsCode repository in system
-                echo "deb [arch=amd64 signed-by="$gpg_key_path"] https://packages.microsoft.com/repos/code stable main" | sudo tee /etc/apt/sources.list.d/vscode.list;
-                sudo rm "$gpg_key_temp_path";
+                sudo wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > "$gpg_key_path";
+                echo "deb [arch=amd64 signed-by="$gpg_key_path"] https://packages.microsoft.com/repos/code stable main" | sudo tee "$repository_list_path";
             };
 
             AddVsCodeRepository;
@@ -382,20 +379,16 @@ function InstallApps()
     {
         function AddSpotifyRepository()
         {
-            local gpg_key_file="spotify-archive-keyring.gpg";
-            local gpg_key_temp_file="spotify-archive-keyring.gpg.tmp";
-            local gpg_key_path="$SYSTEM_SHARED_GPG_KEYS_FOLDER/$gpg_key_file";
-            local gpg_key_temp_path="$DOWNLOAD_FOLDER/$gpg_key_temp_file";
+            local gpg_key_file="spotify.gpg";
+            local repository_list_file="spotify.list";
+            local gpg_key_path="$SYSTEM_APT_GPG_KEYS_FOLDER/$gpg_key_file";
+            local repository_list_path="$SYSTEM_APT_REPOSITORY_LIST_FOLDER/$repository_list_file";
 
-            # Download gpg key
-            sudo wget -qO- https://download.spotify.com/debian/pubkey_5E3C45D7B312C643.gpg | gpg --dearmor > "$gpg_key_temp_path";
-            # Move gpg key into standard location
-            sudo mkdir -p "$gpg_key_path";
-            sudo install -o root -g root -m 644 "$gpg_key_temp_path" "$gpg_key_path";
-            # Add VsCode repository in system
-            echo "deb [signed-by="$gpg_key_path"] http://repository.spotify.com stable non-free" | sudo tee /etc/apt/sources.list.d/spotify.list;
-            sudo rm "$gpg_key_temp_path";
+            curl -sS https://download.spotify.com/debian/pubkey_C85668DF69375001.gpg | sudo gpg --dearmor --yes -o "$gpg_key_path";
+            echo "deb http://repository.spotify.com stable non-free" | sudo tee "$repository_list_path";
         };
+
+        echo "Installing Spotify...";
 
         AddSpotifyRepository;
         sudo apt update && sudo apt install -y spotify-client;
@@ -403,9 +396,9 @@ function InstallApps()
 
     #InstallSteam          ;
     #InstallDiscord        ;
-    #InstallVsCode         ;
+    InstallVsCode         ;
     #InstallVirtualMachine ;
-    InstallRetroArch      ;
+    #InstallRetroArch      ;
     InstallSpotify        ;
 };
 
