@@ -949,7 +949,7 @@ function InstallTerminalUtilities()
 
         # Install Yazi
         echo "Installing Yazi..."
-        cargo install --git https://github.com/sxyazi/yazi --bin yazi-cli
+        cargo install --git https://github.com/sxyazi/yazi --package yazi-cli
 
         echo 'export PATH="$HOME/.cargo/bin:$PATH"' >> ~/.zshrc
 
