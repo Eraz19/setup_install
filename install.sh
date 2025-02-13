@@ -887,6 +887,15 @@ function InstallTerminalUtilities()
             sudo mv $HOME/.cargo/bin/yazi "$USER_BINARIES_FOLDER";
         };
 
+        if IsCommandExists cargo;
+        then
+            echo "cargo yes"
+        else
+            echo "cargo no"
+        fi
+
+        echo "Installing Yazi...";
+
         InstallSoftware       ;
         MoveYaziToBinLocation ;
     };
@@ -1135,5 +1144,5 @@ then
 
     RemoveIncreaseSudoEffectiveness;
 
-    gnome-session-quit --logout --no-prompt;
+    #gnome-session-quit --logout --no-prompt;
 fi
