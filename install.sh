@@ -401,10 +401,10 @@ function InstallApps()
         sudo apt install -y spotify-client;
     };
 
-    InstallSteam          ;
-    InstallDiscord        ;
-    InstallVsCode         ;
-    InstallVirtualMachine ;
+    #InstallSteam          ;
+    #InstallDiscord        ;
+    #InstallVsCode         ;
+    #InstallVirtualMachine ;
     InstallRetroArch      ;
     InstallSpotify        ;
 };
@@ -1244,13 +1244,13 @@ then
 
     sudo apt update ;
 
-    InstallGnomeUIUtilities  ;
+    #InstallGnomeUIUtilities  ;
     InstallApps              ;
-    InstallCodingEcosystem   ;
+    #InstallCodingEcosystem   ;
     ConfigSystemSettings     ;
-    InstallTerminalUtilities ;
+    #InstallTerminalUtilities ;
 
     RemoveIncreaseSudoEffectiveness;
 
-    gnome-session-quit --logout --no-prompt;
+    #gnome-session-quit --logout --no-prompt;
 fi
