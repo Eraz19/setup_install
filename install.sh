@@ -882,22 +882,40 @@ function InstallTerminalUtilities()
             cargo install --locked yazi-fm yazi-cli;
         };
 
-        function MoveYaziToBinLocation()
+        function MoveToBinLocation()
         {
             sudo mv $HOME/.cargo/bin/yazi "$USER_BINARIES_FOLDER";
         };
 
-        if IsCommandExists cargo;
-        then
-            echo "cargo yes"
-        else
-            echo "cargo no"
-        fi
+        function ConfigYazi()
+        {
+            SetZshConfigFile_Alias '
+                alias nav=yazi
+            ' 16;
+        };
 
         echo "Installing Yazi...";
 
-        InstallSoftware       ;
-        MoveYaziToBinLocation ;
+        InstallSoftware   ;
+        MoveToBinLocation ;
+    };
+
+    function InstallZellij()
+    {
+        function InstallSoftware()
+        {
+            cargo install --locked zellij;
+        };
+
+        function MoveToBinLocation()
+        {
+            sudo mv $HOME/.cargo/bin/zellij "$USER_BINARIES_FOLDER";
+        };
+
+        echo "Installing Zellij...";
+
+        InstallSoftware   ;
+        MoveToBinLocation ;
     };
 
     function InstallPalette()
@@ -1122,7 +1140,8 @@ function InstallTerminalUtilities()
     #InstallTree             ;
     #InstallBTop             ;
     #InstallNeofetch         ;
-    InstallYazi             ;
+    #InstallYazi             ;
+    InstallZellij           ;
     #InstallPalette          ;
     InstallOhMyZsh          ;
     #InstallOhMyPosh         ;
