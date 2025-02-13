@@ -16,6 +16,8 @@ SYSTEM_APT_CONFIGURATION_FOLDER="/etc/apt";
 SYSTEM_APT_GPG_KEYS_FOLDER="$SYSTEM_APT_CONFIGURATION_FOLDER/trusted.gpg.d";
 SYSTEM_APT_REPOSITORY_LIST_FOLDER="$SYSTEM_APT_CONFIGURATION_FOLDER/sources.list.d";
 
+SYSTEM_APT_CACHE_FOLDER="/var/cache/apt";
+
 USER_BINARIES_FOLDER="/usr/local/bin";
 
 VS_CODE_CUSTOM_CONFIG_FOLDER="$HOME/.config/Code/User";
@@ -118,6 +120,16 @@ function SetZshConfigFile_Source              () { SetZshConfigFile "$1" "$2" "S
 function SetZshConfigFile_Export              () { SetZshConfigFile "$1" "$2" "EXPORT"                ; } ;
 function SetZshConfigFile_Alias               () { SetZshConfigFile "$1" "$2" "ALIAS"                 ; } ;
 function SetZshConfigFile_EnvironmentVariables() { SetZshConfigFile "$1" "$2" "ENVIRONMENT_VARIABLES" ; } ;
+
+function CleanAptPackagesCache()
+{
+    local apt_packages_repository_metadata_file="pkgcache.bin";
+    local apt_packages_source_metadata_file="srcpkgcache.bin";
+
+    sudo rm -f "$SYSTEM_APT_CACHE_FOLDER/$apt_packages_repository_metadata_file";
+    sudo rm -f "$SYSTEM_APT_CACHE_FOLDER/$apt_packages_source_metadata_file";
+    sudo apt update;
+};
 
 ###################### SCRIPT ######################
 
@@ -239,11 +251,10 @@ function InstallApps()
 
                 wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor | sudo tee "$gpg_key_path" > /dev/null;
                 echo "deb [arch=amd64 signed-by=$gpg_key_path] https://packages.microsoft.com/repos/code stable main" | sudo tee "$repository_list_path";
-                #wget -qO- https://packages.microsoft.com/keys/microsoft.asc | sudo gpg --dearmor > "$gpg_key_path";
-                #sudo echo "deb [arch=amd64 signed-by="$gpg_key_path"] https://packages.microsoft.com/repos/code stable main" | sudo tee "$repository_list_path";
             };
 
             AddVsCodeRepository;
+            CleanAptPackagesCache;
             sudo apt install -y code;
         };
 
@@ -388,13 +399,12 @@ function InstallApps()
 
             curl -sS https://download.spotify.com/debian/pubkey_C85668DF69375001.gpg | gpg --dearmor | sudo tee "$gpg_key_path" > /dev/null;
             echo "deb [signed-by=$gpg_key_path] http://repository.spotify.com stable non-free" | sudo tee "$repository_list_path";
-            #curl -sS https://download.spotify.com/debian/pubkey_C85668DF69375001.gpg | sudo gpg --dearmor --yes -o "$gpg_key_path";
-            #sudo echo "deb http://repository.spotify.com stable non-free" | sudo tee "$repository_list_path";
         };
 
         echo "Installing Spotify...";
 
         AddSpotifyRepository;
+        CleanAptPackagesCache;
         sudo apt update && sudo apt install -y spotify-client;
     };
 
