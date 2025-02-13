@@ -237,7 +237,7 @@ function InstallApps()
                 local gpg_key_path="$SYSTEM_APT_GPG_KEYS_FOLDER/$gpg_key_file";
                 local repository_list_path="$SYSTEM_APT_REPOSITORY_LIST_FOLDER/$repository_list_file";
 
-                sudo wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > "$gpg_key_path";
+                wget -qO- https://packages.microsoft.com/keys/microsoft.asc | sudo gpg --dearmor > "$gpg_key_path";
                 echo "deb [arch=amd64 signed-by="$gpg_key_path"] https://packages.microsoft.com/repos/code stable main" | sudo tee "$repository_list_path";
             };
 
@@ -334,9 +334,9 @@ function InstallApps()
         echo "Installing VsCode...";
 
         InstallSoftware          ;
-        InstallExtensions        ;
-        SettingKeyboardShortcuts ;
-        SettingIcons             ;
+        #InstallExtensions        ;
+        #SettingKeyboardShortcuts ;
+        #SettingIcons             ;
     };
 
     function InstallVirtualMachine()
