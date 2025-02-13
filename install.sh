@@ -182,7 +182,7 @@ function InstallApps()
                 done
             };
 
-            nohup steam steam://open/install &> /dev/null; & KillSteamOnLoginWindow;
+            nohup steam steam://open/install &> /dev/null & KillSteamOnLoginWindow;
         };
 
         function InstallSteamDownloads()
