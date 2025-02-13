@@ -937,10 +937,16 @@ function InstallTerminalUtilities()
 #        InstallSoftware     ;
 #        ConfigYazi          ;
 
-        sudo apt install -y build-essential curl git unzip;
-        curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh:
-        source $HOME/.cargo/env;
-        cargo install yazi --locked;
+        sudo apt install -y build-essential curl git unzip zsh gawk bison
+
+        sudo apt install -y bash
+        curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | bash -s -- -y
+
+        echo 'export PATH="$HOME/.cargo/bin:$PATH"' >> ~/.bashrc
+        source ~/.bashrc
+        
+        cargo install yazi --locked
+        yazi --version
     };
 
     # DONE
