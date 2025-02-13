@@ -51,6 +51,8 @@ function CheckScriptEnvironmentVariables()
         'GIT_SSH_KEY_TITLE'
         'STEAM_USERNAME'
         'STEAM_PASSWORD'
+        'EMAIL'
+        'PASSWORD'
     );
 
     if ! ImportEnvironmentVariables "$env_variables_path";
@@ -149,6 +151,59 @@ function InstallGnomeUIUtilities()
 
 function InstallApps()
 {
+#    function InstallSteam()
+#    {
+#        function InstallSoftware()
+#        {
+#            function AvoidingInteractionPrompt()
+#            {
+#                echo steam steam/license boolean true      | sudo debconf-set-selections ;
+#                echo steam steam/question select "I AGREE" | sudo debconf-set-selections ;
+#            };
+#
+#            sudo add-apt-repository -y multiverse;
+#            sudo apt update;
+#
+#            AvoidingInteractionPrompt;
+#            sudo DEBIAN_FRONTEND=noninteractive apt install -y steam steamcmd;
+#        };
+#
+#        function LaunchFirstUpdate()
+#        {
+#            function KillSteamOnLoginWindow()
+#            {
+#                while true;
+#                do
+#                    if pgrep -f steam-runtime-launcher-service >/dev/null;
+#                    then
+#                        pkill -f steam;
+#                        break;
+#                    fi
+#
+#                    sleep 2;
+#                done
+#            };
+#
+#            nohup steam steam://open/install &> /dev/null & KillSteamOnLoginWindow;
+#        };
+#
+#        function InstallSteamDownloads()
+#        {
+#            steamcmd +login "$STEAM_USERNAME" "$STEAM_PASSWORD" \
+#                     +app_update 1493710 validate \   # Proton 9.0
+#                     +app_update 1145360 validate \   # Hades
+#                     +quit
+#        };
+#
+#        echo "Installing Steam...";
+#
+#        InstallSoftware       ;
+#        LaunchFirstUpdate     ;
+#        InstallSteamDownloads ;
+#    };
+
+
+
     function InstallSteam()
     {
         function InstallSoftware()
@@ -187,10 +242,53 @@ function InstallApps()
 
         function InstallSteamDownloads()
         {
-            steamcmd +login "$STEAM_USERNAME" "$STEAM_PASSWORD" \
-                     +app_update 1493710 validate \   # Proton 9.0
-                     +app_update 1145360 validate \   # Hades
-                     +quit
+            IMAP_SERVER="imap.gmail.com";
+            IMAP_PORT=993;
+            USERNAME="$STEAM_USERNAME";
+            STEAM_PASSWORD="$STEAM_PASSWORD";
+
+            GetSteamGuardCode()
+            {
+                echo -e "1 LOGIN $EMAIL $PASSWORD\n2 SELECT INBOX\n3 SEARCH SUBJECT \"Steam Guard\"\n4 FETCH 1 BODY[TEXT]\n5 LOGOUT" |
+                    openssl s_client -quiet -connect "$IMAP_SERVER:$IMAP_PORT" 2>/dev/null |
+                    sed -n 's/.*Steam Guard.*\([0-9]\{5\}\).*/\1/p' |
+                    tail -n 1
+            };
+
+            steamcmd +login "$USERNAME" "$STEAM_PASSWORD" & STEAMCMD_PID=$!;
+
+            echo "Waiting for Steam Guard code..."
+
+            # Poll Gmail for the Steam Guard code
+            CODE=""
+            MAX_ATTEMPTS=10
+            ATTEMPTS=0
+
+            while [ -z "$CODE" ] && [ $ATTEMPTS -lt $MAX_ATTEMPTS ]; do
+                CODE=$(GetSteamGuardCode)
+                if [ -n "$CODE" ]; then
+                    echo "Steam Guard Code retrieved: $CODE"
+                    break
+                fi
+                ATTEMPTS=$((ATTEMPTS+1))
+                sleep 5
+            done
+
+            # Send the Steam Guard code to steamcmd
+            if [ -n "$CODE" ]; then
+                echo "$CODE" > /proc/$STEAMCMD_PID/fd/0
+                echo "Code sent to SteamCMD."
+            else
+                echo "Failed to retrieve Steam Guard Code!"
+            fi
+
+            wait $STEAMCMD_PID
+
+            # Proceed with downloading Proton and games
+            steamcmd +login "$USERNAME" "$STEAM_PASSWORD" \
+                    +app_update 1493710 validate \ # Proton 9.0
+                    +app_update 1145360 validate \ # Hades
+                    +quit
         };
 
         echo "Installing Steam...";
@@ -199,6 +297,8 @@ function InstallApps()
         LaunchFirstUpdate     ;
         InstallSteamDownloads ;
     };
+
+
 
     function InstallDiscord()
     {
