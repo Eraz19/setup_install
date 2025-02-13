@@ -49,6 +49,8 @@ function CheckScriptEnvironmentVariables()
         'GIT_EMAIL'
         'GIT_SSH_KEY_FILE'
         'GIT_SSH_KEY_TITLE'
+        'STEAM_USERNAME'
+        'STEAM_PASSWORD'
     );
 
     if ! ImportEnvironmentVariables "$env_variables_path";
@@ -151,8 +153,9 @@ function InstallApps()
     {
         function InstallSoftware()
         {
-            sudo add-apt-repository multiverse -y;
-            sudo apt install -y steam;
+            sudo add-apt-repository -y multiverse;
+            sudo apt update;
+            sudo apt install -y steam steamcmd;
         };
 
         function LaunchFirstUpdate()
@@ -171,13 +174,22 @@ function InstallApps()
                 done
             };
 
-            nohup steam steam://open/install &> /dev/null & KillSteamOnLoginWindow;
+            nohup steam steam://open/install &> /dev/null; #& KillSteamOnLoginWindow;
+        };
+
+        function InstallSteamDownloads()
+        {
+            steamcmd +login "$STEAM_USERNAME" "$STEAM_PASSWORD" \
+                     +app_update 1493710 validate \   # Proton 9.0
+                     +app_update 1145360 validate \   # Hades
+                     +quit
         };
 
         echo "Installing Steam...";
 
-        InstallSoftware   ;
-        LaunchFirstUpdate ;
+        InstallSoftware       ;
+        LaunchFirstUpdate     ;
+        InstallSteamDownloads ;
     };
 
     function InstallDiscord()
@@ -347,9 +359,9 @@ function InstallApps()
         echo "Installing VsCode...";
 
         InstallSoftware          ;
-        #InstallExtensions        ;
-        #SettingKeyboardShortcuts ;
-        #SettingIcons             ;
+        InstallExtensions        ;
+        SettingKeyboardShortcuts ;
+        SettingIcons             ;
     };
 
     function InstallVirtualMachine()
@@ -407,12 +419,12 @@ function InstallApps()
         sudo apt update && sudo apt install -y spotify-client;
     };
 
-    #InstallSteam          ;
+    InstallSteam          ;
     #InstallDiscord        ;
-    InstallVsCode         ;
+    #InstallVsCode         ;
     #InstallVirtualMachine ;
     #InstallRetroArch      ;
-    InstallSpotify        ;
+    #InstallSpotify        ;
 };
 
 function InstallCodingEcosystem()
