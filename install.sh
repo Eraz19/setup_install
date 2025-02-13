@@ -550,12 +550,12 @@ function InstallCodingEcosystem()
         {
             function ManuallySourceNvm()
             {
-                source $HOME/.cargo;
+                source $HOME/.cargo/env;
             };
 
             curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y;
-            rustup update;
             ManuallySourceNvm;
+            rustup update;
         };
 
         function ConfigNvmPath()
