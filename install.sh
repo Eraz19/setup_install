@@ -8,8 +8,10 @@ DOWNLOAD_FOLDER="$HOME/Downloads";
 SYSTEM_BINARIES_FOLDER="/usr/bin";
 
 SYSTEM_SHARED_RESSOURCE_FOLDER="/usr/share";
-SYSTEM_SHARED_GPG_KEYS_FOLDER="/usr/share/keyrings";
-SYSTEM_SHARED_FONT_FOLDER="/usr/share/fonts";
+SYSTEM_SHARED_APPLICATION_ICON_CONFIG_FOLDER="$SYSTEM_SHARED_RESSOURCE_FOLDER/applications";
+SYSTEM_SHARED_GPG_KEYS_FOLDER="$SYSTEM_SHARED_RESSOURCE_FOLDER/keyrings";
+SYSTEM_SHARED_ICONS_FOLDER="$SYSTEM_SHARED_RESSOURCE_FOLDER/icons";
+SYSTEM_SHARED_FONT_FOLDER="$SYSTEM_SHARED_RESSOURCE_FOLDER/fonts";
 
 USER_BINARIES_FOLDER="/usr/local/bin";
 
@@ -286,6 +288,8 @@ function InstallApps()
         {
             function ConfigKeyboardShortcut()
             {
+                local keyboard_shortcut_path="$1";
+
                 sudo printf '
                 [
                     {
@@ -298,7 +302,7 @@ function InstallApps()
                         "command": "editor.action.transformToLowercase",
                         "when": "editorTextFocus"
                     }
-                ]' | sed 's/^ \{16\}//' | sudo tee "$1" > /dev/null;
+                ]' | sed 's/^ \{16\}//' | sudo tee "$keyboard_shortcut_path" > /dev/null;
             };
 
             local keyboard_shortcut_file='keybindings.json';
@@ -362,10 +366,47 @@ function InstallApps()
         ConfigVirtualMachineCommands ;
     };
 
+    function InstallRetroArch()
+    {
+        function InstallSoftware()
+        {
+            sudo apt install -y retroarch;
+        };
+
+        echo "Installing RetroArch...";
+
+        InstallSoftware;
+    };
+
+    function InstallSpotify()
+    {
+        function AddSpotifyRepository()
+        {
+            local gpg_key_file="spotify-archive-keyring.gpg";
+            local gpg_key_temp_file="spotify-archive-keyring.gpg.tmp";
+            local gpg_key_path="$SYSTEM_SHARED_GPG_KEYS_FOLDER/$gpg_key_file";
+            local gpg_key_temp_path="$DOWNLOAD_FOLDER/$gpg_key_temp_file";
+
+            # Download gpg key
+            sudo wget -qO- https://download.spotify.com/debian/pubkey_5E3C45D7B312C643.gpg | gpg --dearmor > "$gpg_key_temp_path";
+            # Move gpg key into standard location
+            sudo mkdir -p "$gpg_key_path";
+            sudo install -o root -g root -m 644 "$gpg_key_temp_path" "$gpg_key_path";
+            # Add VsCode repository in system
+            echo "deb [signed-by="$gpg_key_path"] http://repository.spotify.com stable non-free" | sudo tee /etc/apt/sources.list.d/spotify.list;
+            sudo rm "$gpg_key_temp_path";
+        };
+
+        AddSpotifyRepository;
+        sudo apt install -y spotify-client;
+    };
+
     InstallSteam          ;
     InstallDiscord        ;
     InstallVsCode         ;
     InstallVirtualMachine ;
+    InstallRetroArch      ;
+    InstallSpotify        ;
 };
 
 function InstallCodingEcosystem()
@@ -571,10 +612,10 @@ function InstallCodingEcosystem()
         ConfigNvmPath   ;
     };
 
-    #InstallGit    ;
-    #InstallNvm    ;
-    #InstallPython ;
-    #InstallKotlin ;
+    InstallGit    ;
+    InstallNvm    ;
+    InstallPython ;
+    InstallKotlin ;
     InstallRust   ;
 };
 
@@ -628,6 +669,53 @@ function ConfigSystemSettings()
 
     function SettingDesktopDock()
     {
+        function FormatGSettingIconsList()
+        {
+            local array=("$@");
+
+            printf -v formatted "'%s'," "${array[@]}";
+            echo "[${formatted%,}]";
+        };
+
+        function CreateDockSeparator()
+        {
+            function DownloadSeparatorIcon()
+            {
+                local application_icon_path="$1";
+
+                if [[ ! -f "$application_icon_path" ]];
+                then
+                    sudo wget -O "$application_icon_path" https://via.placeholder.com/1x1.png;
+                fi
+            };
+
+            function ConfigSeparatorIcon()
+            {
+                local application_icon_config_path="$1";
+                local application_icon_path="$2";
+
+                sudo printf "
+                    [Desktop Entry]
+                    Name=Spacer
+                    Comment=Invisible spacer for Dash to Dock
+                    Exec=true
+                    Icon="$application_icon_path"
+                    Terminal=false
+                    Type=Application
+                    Categories=Utility;
+                " | sed 's/^ \{20\}//' | sudo tee "$application_icon_config_path" > /dev/null;
+                sudo chmod 644 "$application_icon_config_path";
+            };
+
+            local application_icon_file="spacer.png";
+            local application_icon_config_file="spacer.desktop";
+            local application_icon_path="$SYSTEM_SHARED_ICONS_FOLDER/$icon_file";
+            local application_icon_config_path="$SYSTEM_SHARED_APPLICATION_ICON_CONFIG_FOLDER/$icon_config_file";
+
+            DownloadSeparatorIcon "$application_icon_path";
+            ConfigSeparatorIcon "$application_icon_config_path" "$application_icon_path";
+        };
+
         function SettingDesktopDock_Dconf()
         {
             dconf write /org/gnome/shell/extensions/dash-to-dock/dash-max-icon-size 35                       ;
@@ -656,25 +744,25 @@ function ConfigSystemSettings()
             gsettings set org.gnome.shell favorite-apps "$1";
         };
 
-        function FormatGSettingIconsList()
-        {
-            local array=("$@");
-
-            printf -v formatted "'%s'," "${array[@]}";
-            echo "[${formatted%,}]";
-        };
-
         local dock_icons=(
             'pop-cosmic-applications.desktop'
             'firefox.desktop'
+            'spacer.desktop'
             'org.gnome.Terminal.desktop'
             'code.desktop'
+            'spacer.desktop'
             'steam.desktop'
+            'retroarch_retroarch.desktop'
+            'spacer.desktop'
             'discord.desktop'
+            'spacer.desktop'
+            'spotify_spotify.desktop'
+            'spacer.desktop'
             'gnome-control-center.desktop'
         );
         local formatted_icons=$(FormatGSettingIconsList "${dock_icons[@]}");
 
+        CreateDockSeparator;
         SettingDesktopDock_Dconf     "$formatted_icons" ;
         SettingDesktopDock_GSettings "$formatted_icons" ;
     };
@@ -1135,16 +1223,16 @@ function InstallTerminalUtilities()
     };
 
     InstallZsh              ;
-    #InstallFzf              ;
-    #InstallTheFuck          ;
-    #InstallTree             ;
-    #InstallBTop             ;
-    #InstallNeofetch         ;
-    #InstallYazi             ;
+    InstallFzf              ;
+    InstallTheFuck          ;
+    InstallTree             ;
+    InstallBTop             ;
+    InstallNeofetch         ;
+    InstallYazi             ;
     InstallZellij           ;
-    #InstallPalette          ;
+    InstallPalette          ;
     InstallOhMyZsh          ;
-    #InstallOhMyPosh         ;
+    InstallOhMyPosh         ;
     ChangeDefaultShellToZsh ;
 };
 
@@ -1156,13 +1244,13 @@ then
 
     sudo apt update ;
 
-    #InstallGnomeUIUtilities  ;
-    #InstallApps              ;
+    InstallGnomeUIUtilities  ;
+    InstallApps              ;
     InstallCodingEcosystem   ;
-    #ConfigSystemSettings     ;
+    ConfigSystemSettings     ;
     InstallTerminalUtilities ;
 
     RemoveIncreaseSudoEffectiveness;
 
-    #gnome-session-quit --logout --no-prompt;
+    gnome-session-quit --logout --no-prompt;
 fi
