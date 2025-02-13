@@ -116,7 +116,6 @@ function SetZshConfigFile_EnvironmentVariables() { SetZshConfigFile "$1" "$2" "E
 
 ###################### SCRIPT ######################
 
-# DONE
 function InstallGnomeUIUtilities()
 {
     function InstallTweaks()
@@ -129,7 +128,6 @@ function InstallGnomeUIUtilities()
     InstallTweaks;
 };
 
-# DONE
 function InstallApps()
 {
     function InstallSteam()
@@ -370,7 +368,6 @@ function InstallApps()
     InstallVirtualMachine ;
 };
 
-# DONE
 function InstallCodingEcosystem()
 {
     function InstallGit()
@@ -814,7 +811,6 @@ function ConfigSystemSettings()
 
 function InstallTerminalUtilities()
 {
-    # DONE
     function InstallZsh()
     {
         echo "Installing Zsh...";
@@ -822,7 +818,6 @@ function InstallTerminalUtilities()
         sudo apt install -y zsh;
     };
     
-    # DONE
     function InstallFzf()
     {
         echo "Installing Fzf...";
@@ -830,7 +825,6 @@ function InstallTerminalUtilities()
         sudo apt install -y fzf;
     };
     
-    # DONE
     function InstallTheFuck()
     {
         echo "Installing TheFuck...";
@@ -838,7 +832,6 @@ function InstallTerminalUtilities()
         sudo apt install -y thefuck;
     };
     
-    # DONE
     function InstallTree()
     {
         echo "Installing Tree...";
@@ -846,7 +839,6 @@ function InstallTerminalUtilities()
         sudo apt install -y tree;
     };
 
-    # DONE
     function InstallBTop()
     {
         echo "Installing BTop...";
@@ -854,7 +846,6 @@ function InstallTerminalUtilities()
         sudo apt install -y btop;
     };
 
-    # DONE
     function InstallNeofetch()
     {
         echo "Installing Neofetch...";
@@ -862,108 +853,6 @@ function InstallTerminalUtilities()
         sudo apt install -y neofetch;
     };
 
-    function InstallYazi()
-    {
-#        function InstallDependencies()
-#        {
-#            GLIBC_VERSION=2.39
-#            INSTALL_DIR=/opt/glibc-$GLIBC_VERSION
-#            NUM_CORES=$(nproc)
-#
-#            echo "Updating package list..."
-#            sudo apt update -y
-#
-#            echo "Installing build dependencies..."
-#            sudo apt install -y build-essential manpages-dev
-#
-#            echo "Downloading GLIBC $GLIBC_VERSION..."
-#            cd /usr/src
-#            sudo wget http://ftp.gnu.org/gnu/libc/glibc-$GLIBC_VERSION.tar.gz
-#            sudo tar -xvzf glibc-$GLIBC_VERSION.tar.gz
-#            cd glibc-$GLIBC_VERSION
-#
-#            echo "Creating build directory..."
-#            sudo mkdir -p build
-#            cd build
-#
-#            echo "Configuring GLIBC build..."
-#            sudo ../configure --prefix=$INSTALL_DIR
-#
-#            echo "Compiling GLIBC (this may take some time)..."
-#            sudo make -j$NUM_CORES
-#
-#            echo "Installing GLIBC $GLIBC_VERSION..."
-#            sudo make install
-#
-#            echo "Configuring system to use the new GLIBC version..."
-#            echo "export LD_LIBRARY_PATH=$INSTALL_DIR/lib:\$LD_LIBRARY_PATH" | sudo tee -a /etc/profile
-#            echo "export PATH=$INSTALL_DIR/bin:\$PATH" | sudo tee -a /etc/profile
-#
-#            echo "Reloading environment..."
-#            source /etc/profile
-#
-#            echo "Checking installed GLIBC version..."
-#            ldd --version
-#
-#            echo "✅ GLIBC $GLIBC_VERSION installed successfully!"
-#        }
-#
-#        # Not working
-#        function InstallSoftware()
-#        {
-#            local package_zip_file="yazi.zip";
-#            local package_temp_file="yazi.tmp";
-#            local package_zip_path="$DOWNLOAD_FOLDER/$package_zip_file";
-#            local package_temp_path="$DOWNLOAD_FOLDER/$package_temp_file";
-#
-#            wget -qO "$package_zip_path" https://github.com/sxyazi/yazi/releases/latest/download/yazi-x86_64-unknown-linux-gnu.zip;
-#            unzip -q "$package_zip_path" -d "$package_temp_path";
-#            sudo mv "$package_temp_path/*/yazi" "$USER_BINARIES_FOLDER";
-#
-#            rm -rf "$package_temp_path" "$package_zip_path";
-#        };
-#
-#        # DONE
-#        function ConfigYazi()
-#        {
-#            SetZshConfigFile_Alias '
-#                alias nav=yazi
-#            ' 16;
-#        };
-#
-#        echo "Installing Yazi...";
-#
-#        InstallDependencies ;
-#        InstallSoftware     ;
-#        ConfigYazi          ;
-
-        sudo apt install -y build-essential curl file git unzip zsh gawk bison bash
-
-        # Install Rust if not installed
-        if ! command -v cargo &>/dev/null; then
-            echo "Installing Rust..."
-            curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | bash -s -- -y
-            . "$HOME/.cargo/env"
-            source "$HOME/.cargo/env"
-        fi
-
-        # Install Yazi
-        echo "Installing Yazi..."
-        cargo install --git https://github.com/sxyazi/yazi --package yazi-cli
-
-        echo 'export PATH="$HOME/.cargo/bin:$PATH"' >> ~/.zshrc
-
-        # Verify installation
-        if command -v yazi &>/dev/null; then
-            echo "✅ Yazi installed successfully!"
-        else
-            echo "❌ Failed to install Yazi. Check the error logs."
-        fi
-
-
-    };
-
-    # DONE
     function InstallPalette()
     {
         echo "Installing Palette...";
@@ -973,7 +862,6 @@ function InstallTerminalUtilities()
         ' 12;
     };
 
-    # DONE
     function InstallOhMyZsh()
     {
         function InstallSoftware()
@@ -1050,7 +938,6 @@ function InstallTerminalUtilities()
         ModifyZSHConfigFileInSystem ;
     };
 
-    # DONE
     function InstallOhMyPosh()
     {
         function InstallSoftware()
@@ -1177,23 +1064,21 @@ function InstallTerminalUtilities()
         InstallNerdFont ;
     };
 
-    # DONE
     function ChangeDefaultShellToZsh()
     {
         sudo chsh -s "$(which zsh)" "$USER";
     };
 
-    #InstallZsh              ;
-    #InstallFzf              ;
-    #InstallTheFuck          ;
-    #InstallTree             ;
-    #InstallBTop             ;
-    #InstallNeofetch         ;
-    InstallYazi             ;
-    #InstallPalette          ;
-    #InstallOhMyZsh          ;
-    #InstallOhMyPosh         ;
-    #ChangeDefaultShellToZsh ;
+    InstallZsh              ;
+    InstallFzf              ;
+    InstallTheFuck          ;
+    InstallTree             ;
+    InstallBTop             ;
+    InstallNeofetch         ;
+    InstallPalette          ;
+    InstallOhMyZsh          ;
+    InstallOhMyPosh         ;
+    ChangeDefaultShellToZsh ;
 };
 
 sudo -v;
@@ -1204,13 +1089,13 @@ then
 
     sudo apt update ;
 
-    #InstallGnomeUIUtilities  ;
-    #InstallApps              ;
-    #InstallCodingEcosystem   ;
-    #ConfigSystemSettings     ;
+    InstallGnomeUIUtilities  ;
+    InstallApps              ;
+    InstallCodingEcosystem   ;
+    ConfigSystemSettings     ;
     InstallTerminalUtilities ;
 
     RemoveIncreaseSudoEffectiveness;
 
-    #gnome-session-quit --logout --no-prompt;
+    gnome-session-quit --logout --no-prompt;
 fi
