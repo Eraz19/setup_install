@@ -544,15 +544,42 @@ function InstallCodingEcosystem()
         InstallKotlinToolchain ;
     };
 
-    InstallGit    ;
-    InstallNvm    ;
-    InstallPython ;
-    InstallKotlin ;
+    function InstallRust()
+    {
+        function InstallSoftware()
+        {
+            function ManuallySourceNvm()
+            {
+                source $HOME/.cargo;
+            };
+
+            curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh;
+            rustup update;
+            ManuallySourceNvm;
+        };
+
+        function ConfigNvmPath()
+        {
+            SetZshConfigFile_Export '
+                export PATH="$HOME/.cargo/bin:$PATH"
+            ' 16;
+        };
+
+        echo "Installing Rust...";
+
+        InstallSoftware ;
+        ConfigNvmPath   ;
+    };
+
+    #InstallGit    ;
+    #InstallNvm    ;
+    #InstallPython ;
+    #InstallKotlin ;
+    InstallRust   ;
 };
 
 function ConfigSystemSettings()
 {
-    # DONE
     function SettingPowerBehavior()
     {
         function SettingPowerBehaviors_Dconf()
@@ -579,7 +606,6 @@ function ConfigSystemSettings()
         SettingPowerBehaviors_GSettings ;
     };
 
-    # DONE
     function SettingScreenBehavior()
     {
         function SettingScreenBehaviors_Dconf()
@@ -600,7 +626,6 @@ function ConfigSystemSettings()
         SettingScreenBehaviors_GSettings ;
     };
 
-    # DONE
     function SettingDesktopDock()
     {
         function SettingDesktopDock_Dconf()
@@ -654,7 +679,6 @@ function ConfigSystemSettings()
         SettingDesktopDock_GSettings "$formatted_icons" ;
     };
 
-    # DONE
     function SettingDesktop()
     {
         function SettingDesktop_Dconf()
@@ -679,7 +703,6 @@ function ConfigSystemSettings()
         SettingDesktop_GSettings ;
     };
 
-    # DONE
     function SettingDesktopTheme()
     {
         function SettingDesktopTheme_Dconf()
@@ -706,7 +729,6 @@ function ConfigSystemSettings()
         SettingDesktopTheme_GSettings ;
     };
 
-    # NEED CHECKING
     function InstallGPUDRivers()
     {
         function InstallNvidiaDrivers()
@@ -851,6 +873,22 @@ function InstallTerminalUtilities()
         echo "Installing Neofetch...";
 
         sudo apt install -y neofetch;
+    };
+
+    function InstallYazi()
+    {
+        function InstallSoftware()
+        {
+            cargo install --locked yazi-fm yazi-cli;
+        };
+
+        function MoveYaziToBinLocation()
+        {
+            sudo mv $HOME/.cargo/bin/yazi "$USER_BINARIES_FOLDER";
+        };
+
+        InstallSoftware       ;
+        MoveYaziToBinLocation ;
     };
 
     function InstallPalette()
@@ -1070,14 +1108,14 @@ function InstallTerminalUtilities()
     };
 
     InstallZsh              ;
-    InstallFzf              ;
-    InstallTheFuck          ;
-    InstallTree             ;
-    InstallBTop             ;
-    InstallNeofetch         ;
-    InstallPalette          ;
+    #InstallFzf              ;
+    #InstallTheFuck          ;
+    #InstallTree             ;
+    #InstallBTop             ;
+    #InstallNeofetch         ;
+    #InstallPalette          ;
     InstallOhMyZsh          ;
-    InstallOhMyPosh         ;
+    #InstallOhMyPosh         ;
     ChangeDefaultShellToZsh ;
 };
 
@@ -1089,10 +1127,10 @@ then
 
     sudo apt update ;
 
-    InstallGnomeUIUtilities  ;
-    InstallApps              ;
+    #InstallGnomeUIUtilities  ;
+    #InstallApps              ;
     InstallCodingEcosystem   ;
-    ConfigSystemSettings     ;
+    #ConfigSystemSettings     ;
     InstallTerminalUtilities ;
 
     RemoveIncreaseSudoEffectiveness;
