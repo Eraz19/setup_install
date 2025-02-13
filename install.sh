@@ -404,7 +404,6 @@ function InstallApps()
         echo "Installing Spotify...";
 
         AddSpotifyRepository;
-        CleanAptPackagesCache;
         sudo apt update && sudo apt install -y spotify-client;
     };
 
