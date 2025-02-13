@@ -153,9 +153,17 @@ function InstallApps()
     {
         function InstallSoftware()
         {
+            function AvoidingInteractionPrompt()
+            {
+                echo steam steam/license boolean true      | sudo debconf-set-selections ;
+                echo steam steam/question select "I AGREE" | sudo debconf-set-selections ;
+            };
+
             sudo add-apt-repository -y multiverse;
             sudo apt update;
-            sudo apt install -y steam steamcmd;
+
+            AvoidingInteractionPrompt;
+            sudo DEBIAN_FRONTEND=noninteractive apt install -y steam steamcmd;
         };
 
         function LaunchFirstUpdate()
@@ -174,7 +182,7 @@ function InstallApps()
                 done
             };
 
-            nohup steam steam://open/install &> /dev/null; #& KillSteamOnLoginWindow;
+            nohup steam steam://open/install &> /dev/null; & KillSteamOnLoginWindow;
         };
 
         function InstallSteamDownloads()
