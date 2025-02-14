@@ -300,16 +300,16 @@ function InstallApps()
                         +quit;
             };
 
-            local code="";
-            local steamcmd_pid=$(steamcmd +login "$STEAM_USERNAME" "$STEAM_PASSWORD" & echo $!);
-
-            echo "steamcmd_pid : $steamcmd_pid";
-
-            echo "Waiting for Steam Guard code..."
-            code=$(ListenGmail);
-            RegisterSteamcmdCode "$code" "$steamcmd_pid";
-
-            wait "$steamcmd_pid";
+            #local code="";
+            #local steamcmd_pid=$(steamcmd +login "$STEAM_USERNAME" "$STEAM_PASSWORD" & echo $!);
+#
+            #echo "steamcmd_pid : $steamcmd_pid";
+#
+            #echo "Waiting for Steam Guard code..."
+            #code=$(ListenGmail);
+            #RegisterSteamcmdCode "$code" "$steamcmd_pid";
+#
+            #wait "$steamcmd_pid";
             StartDownloads;
         };
 
