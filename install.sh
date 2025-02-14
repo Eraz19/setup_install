@@ -192,21 +192,35 @@ function InstallApps()
         function FirstLogin()
         {
             local login_config_path="$SYSTEM_STEAM_CONFIG_FOLDER/loginusers.vdf"
+            local userdata_folder="$SYSTEM_STEAM_USER_DATA_FOLDER"
 
-            # Launch Steam once to generate the user ID
+            # Ensure the userdata folder exists
+            if [ ! -d "$userdata_folder" ]; then
+                echo "Creating missing Steam userdata directory..."
+                mkdir -p "$userdata_folder"
+            fi
+
+            # Launch Steam once to initialize files
+            echo "Launching Steam to initialize directories..."
             nohup steam &>/dev/null &
-            sleep 10  # Give Steam time to initialize and create the user folder
+            sleep 15  # Give Steam enough time to initialize
             pkill steam
 
-            # Extract the user ID
-            local user_id=$(find "$SYSTEM_STEAM_USER_DATA_FOLDER/" -maxdepth 1 -type d -exec basename {} \; | grep -E '^[0-9]+$')
+            # Extract the user ID after Steam initialization
+            local user_id=$(find "$userdata_folder" -maxdepth 1 -type d -exec basename {} \; | grep -E '^[0-9]+$')
+
+            if [ -z "$user_id" ]; then
+                echo "User ID not found. Please check if Steam login is working."
+                return 1
+            fi
 
             # Backup existing config if present
             if [ -f "$login_config_path" ]; then
                 cp "$login_config_path" "$login_config_path.bak"
             fi
 
-            # Write the login configuration using echo statements
+            # Write the login configuration
+            echo "Writing Steam login configuration..."
             echo "{"                                  >  "$login_config_path"
             echo "    \"users\": {"                   >> "$login_config_path"
             echo "        \"$user_id\": {"            >> "$login_config_path"
@@ -218,12 +232,13 @@ function InstallApps()
             echo "    \"Version\": 1"                 >> "$login_config_path"
             echo "}"                                  >> "$login_config_path"
 
-            # Ensure proper permissions
+            # Set appropriate permissions
             chmod 600 "$login_config_path"
 
-            # Start Steam to apply the login
+            # Launch Steam with login credentials
+            echo "Starting Steam with login credentials..."
             nohup steam -login "$STEAM_USERNAME" "$STEAM_PASSWORD" &>/dev/null &
-            sleep 15
+            sleep 20
             pkill steam
         };
 
