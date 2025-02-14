@@ -191,29 +191,40 @@ function InstallApps()
 
         function FirstLogin()
         {
-            local user_id="";
-            local login_config_file="loginusers.vdf";
-            local login_config_path="$SYSTEM_STEAM_CONFIG_FOLDER/$login_config_file";
+            local login_config_path="$SYSTEM_STEAM_CONFIG_FOLDER/loginusers.vdf"
 
-            steamcmd +login "$STEAM_USERNAME" "$STEAM_PASSWORD" +quit;
-            sleep 5;
+            # Launch Steam once to generate the user ID
+            nohup steam &>/dev/null &
+            sleep 10  # Give Steam time to initialize and create the user folder
+            pkill steam
 
-            user_id=$(find "$SYSTEM_STEAM_USER_DATA_FOLDER/" -maxdepth 1 -type d -exec basename {} \; | grep -E '^[0-9]+$');
+            # Extract the user ID
+            local user_id=$(find "$SYSTEM_STEAM_USER_DATA_FOLDER/" -maxdepth 1 -type d -exec basename {} \; | grep -E '^[0-9]+$')
 
-            if [ -f "$login_config_path" ];
-            then
-                cp "$login_config_path" "$login_config_path.bak";
+            # Backup existing config if present
+            if [ -f "$login_config_path" ]; then
+                cp "$login_config_path" "$login_config_path.bak"
             fi
 
-            echo "{" > "$login_config_path";
-            echo "    \"users\": {" >> "$login_config_path";
-            echo "        \"$user_id\": {" >> "$login_config_path";
-            echo "            \"AccountName\": \"$STEAM_USERNAME\"," >> "$login_config_path";
-            echo "            \"RememberPassword\": \"1\"," >> "$login_config_path";
-            echo "            \"MostRecent\": \"1\"" >> "$login_config_path";
-            echo "        }" >> "$login_config_path";
-            echo "    }" >> "$login_config_path";
-            echo "}" >> "$login_config_path";
+            # Write the login configuration using echo statements
+            echo "{"                                  >  "$login_config_path"
+            echo "    \"users\": {"                   >> "$login_config_path"
+            echo "        \"$user_id\": {"            >> "$login_config_path"
+            echo "            \"AccountName\": \"$STEAM_USERNAME\"," >> "$login_config_path"
+            echo "            \"RememberPassword\": \"1\"," >> "$login_config_path"
+            echo "            \"MostRecent\": \"1\""  >> "$login_config_path"
+            echo "        }"                          >> "$login_config_path"
+            echo "    },"                             >> "$login_config_path"
+            echo "    \"Version\": 1"                 >> "$login_config_path"
+            echo "}"                                  >> "$login_config_path"
+
+            # Ensure proper permissions
+            chmod 600 "$login_config_path"
+
+            # Start Steam to apply the login
+            nohup steam -login "$STEAM_USERNAME" "$STEAM_PASSWORD" &>/dev/null &
+            sleep 15
+            pkill steam
         };
 
         function InstallSteamDownloads()
