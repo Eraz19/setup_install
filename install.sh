@@ -239,10 +239,13 @@ function InstallApps()
         function InstallSteamDownloads()
         {
             steamcmd +login "$STEAM_USERNAME" "$STEAM_PASSWORD" \
-                +@sSteamCmdForcePlatformType windows \
-                +app_update 1493710 validate \
-                +app_update 1145360 validate \
-                +quit;
+                    +app_update 1493710 validate \
+                    +quit;
+
+            steamcmd +login "$STEAM_USERNAME" "$STEAM_PASSWORD" \
+                    +@sSteamCmdForcePlatformType windows \
+                    +app_update 1145360 validate \
+                    +quit;
         };
 
         echo "Installing Steam...";
