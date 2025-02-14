@@ -242,53 +242,77 @@ function InstallApps()
 
         function InstallSteamDownloads()
         {
-            IMAP_SERVER="imap.gmail.com";
-            IMAP_PORT=993;
-            USERNAME="$STEAM_USERNAME";
-            STEAM_PASSWORD="$STEAM_PASSWORD";
-
-            GetSteamGuardCode()
+            function ListenGmail()
             {
-                echo -e "1 LOGIN $EMAIL $PASSWORD\n2 SELECT INBOX\n3 SEARCH SUBJECT \"Steam Guard\"\n4 FETCH 1 BODY[TEXT]\n5 LOGOUT" |
-                    openssl s_client -quiet -connect "$IMAP_SERVER:$IMAP_PORT" 2>/dev/null |
-                    sed -n 's/.*Steam Guard.*\([0-9]\{5\}\).*/\1/p' |
-                    tail -n 1
+                function GetSteamGuardCode()
+                {
+                    local imap_server="imap.gmail.com";
+                    local imap_port=993;
+
+                    echo -e "1 LOGIN $EMAIL $PASSWORD\n2 SELECT INBOX\n3 SEARCH SUBJECT \"Steam Guard\"\n4 FETCH 1 BODY[TEXT]\n5 LOGOUT" |
+                        openssl s_client -quiet -connect "$imap_server:$imap_port" 2>/dev/null |
+                        sed -n 's/.*Steam Guard.*\([0-9]\{5\}\).*/\1/p' |
+                        tail -n 1;
+                };
+
+                local code="";
+                local max_attents=10;
+                local attemps_counter=0;
+
+                while [ -z "$code" ] && [ $attemps_counter -lt $max_attents ];
+                do
+                    echo "ListenGmail";
+                    echo "max_attents     : $max_attents";
+                    echo "attemps_counter : $attemps_counter";
+
+                    code=$(GetSteamGuardCode);
+
+                    echo "code : $code";
+
+                    if [ -n "$code" ];
+                    then
+                        break;
+                    fi
+
+                    attemps_counter=$((attemps_counter+1));
+                    sleep 5;
+                done
+
+                echo "$code";
             };
 
-            steamcmd +login "$USERNAME" "$STEAM_PASSWORD" & STEAMCMD_PID=$!;
+            function RegisterSteamcmdCode()
+            {
+                local code="$1";
+                local steamcmd_pid="$2";
+
+                echo "Register $code $steamcmd_pid";
+
+                if [ -n "$code" ];
+                then
+                    echo "$code" > /proc/$steamcmd_pid/fd/0;
+                fi
+            };
+
+            function StartDownloads()
+            {
+                steamcmd +login "$STEAM_USERNAME" "$STEAM_PASSWORD" \
+                        +app_update 1493710 validate \ # Proton 9.0
+                        +app_update 1145360 validate \ # Hades
+                        +quit;
+            };
+
+            local code="";
+            local steamcmd_pid="";
+
+            steamcmd +login "$STEAM_USERNAME" "$STEAM_PASSWORD" & steamcmd_pid=$!;
 
             echo "Waiting for Steam Guard code..."
+            code=$(ListenGmail);
+            RegisterSteamcmdCode "$code" "$steamcmd_pid";
 
-            # Poll Gmail for the Steam Guard code
-            CODE=""
-            MAX_ATTEMPTS=10
-            ATTEMPTS=0
-
-            while [ -z "$CODE" ] && [ $ATTEMPTS -lt $MAX_ATTEMPTS ]; do
-                CODE=$(GetSteamGuardCode)
-                if [ -n "$CODE" ]; then
-                    echo "Steam Guard Code retrieved: $CODE"
-                    break
-                fi
-                ATTEMPTS=$((ATTEMPTS+1))
-                sleep 5
-            done
-
-            # Send the Steam Guard code to steamcmd
-            if [ -n "$CODE" ]; then
-                echo "$CODE" > /proc/$STEAMCMD_PID/fd/0
-                echo "Code sent to SteamCMD."
-            else
-                echo "Failed to retrieve Steam Guard Code!"
-            fi
-
-            wait $STEAMCMD_PID
-
-            # Proceed with downloading Proton and games
-            steamcmd +login "$USERNAME" "$STEAM_PASSWORD" \
-                    +app_update 1493710 validate \ # Proton 9.0
-                    +app_update 1145360 validate \ # Hades
-                    +quit
+            wait "$steamcmd_pid";
+            StartDownloads;
         };
 
         echo "Installing Steam...";
