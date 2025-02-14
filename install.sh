@@ -216,12 +216,12 @@ function InstallApps()
                     +quit;
 
             steamcmd +login "$STEAM_USERNAME" "$STEAM_PASSWORD" \
-                    +@sSteamCmdForcePlatformType windows \
+                    +@sSteamCmdForcePlatformType linux \
                     +app_update 1145360 validate \
                     +quit;
 
             # Apply Proton compatibility settings
-            ApplyProton;
+            # ApplyProton;
         };
 
         echo "Installing Steam...";
