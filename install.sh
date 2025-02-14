@@ -547,7 +547,7 @@ function InstallApps()
         sudo apt update && sudo apt install -y spotify-client;
     };
 
-    stdbuf -oL $(InstallSteam);
+    InstallSteam          ;
     #InstallDiscord        ;
     #InstallVsCode         ;
     #InstallVirtualMachine ;
