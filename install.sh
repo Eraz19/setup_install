@@ -202,8 +202,6 @@ function InstallApps()
 #        InstallSteamDownloads ;
 #    };
 
-
-
     function InstallSteam()
     {
         function InstallSoftware()
@@ -303,9 +301,9 @@ function InstallApps()
             };
 
             local code="";
-            local steamcmd_pid="";
+            local steamcmd_pid=$(steamcmd +login "$STEAM_USERNAME" "$STEAM_PASSWORD" & echo $!);
 
-            steamcmd +login "$STEAM_USERNAME" "$STEAM_PASSWORD" & steamcmd_pid=$!;
+            echo "steamcmd_pid : $steamcmd_pid";
 
             echo "Waiting for Steam Guard code..."
             code=$(ListenGmail);
@@ -321,8 +319,6 @@ function InstallApps()
         LaunchFirstUpdate     ;
         InstallSteamDownloads ;
     };
-
-
 
     function InstallDiscord()
     {
@@ -551,7 +547,7 @@ function InstallApps()
         sudo apt update && sudo apt install -y spotify-client;
     };
 
-    InstallSteam          ;
+    stdbuf -oL $(InstallSteam);
     #InstallDiscord        ;
     #InstallVsCode         ;
     #InstallVirtualMachine ;
