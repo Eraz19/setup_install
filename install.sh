@@ -51,8 +51,6 @@ function CheckScriptEnvironmentVariables()
         'GIT_SSH_KEY_TITLE'
         'STEAM_USERNAME'
         'STEAM_PASSWORD'
-        'EMAIL'
-        'PASSWORD'
     );
 
     if ! ImportEnvironmentVariables "$env_variables_path";
@@ -240,77 +238,11 @@ function InstallApps()
 
         function InstallSteamDownloads()
         {
-            function ListenGmail()
-            {
-                function GetSteamGuardCode()
-                {
-                    local imap_server="imap.gmail.com";
-                    local imap_port=993;
-
-                    echo -e "1 LOGIN $EMAIL $PASSWORD\n2 SELECT INBOX\n3 SEARCH SUBJECT \"Steam Guard\"\n4 FETCH 1 BODY[TEXT]\n5 LOGOUT" |
-                        openssl s_client -quiet -connect "$imap_server:$imap_port" 2>/dev/null |
-                        sed -n 's/.*Steam Guard.*\([0-9]\{5\}\).*/\1/p' |
-                        tail -n 1;
-                };
-
-                local code="";
-                local max_attents=10;
-                local attemps_counter=0;
-
-                while [ -z "$code" ] && [ $attemps_counter -lt $max_attents ];
-                do
-                    echo "ListenGmail";
-                    echo "max_attents     : $max_attents";
-                    echo "attemps_counter : $attemps_counter";
-
-                    code=$(GetSteamGuardCode);
-
-                    echo "code : $code";
-
-                    if [ -n "$code" ];
-                    then
-                        break;
-                    fi
-
-                    attemps_counter=$((attemps_counter+1));
-                    sleep 5;
-                done
-
-                echo "$code";
-            };
-
-            function RegisterSteamcmdCode()
-            {
-                local code="$1";
-                local steamcmd_pid="$2";
-
-                echo "Register $code $steamcmd_pid";
-
-                if [ -n "$code" ];
-                then
-                    echo "$code" > /proc/$steamcmd_pid/fd/0;
-                fi
-            };
-
-            function StartDownloads()
-            {
-                steamcmd +login "$STEAM_USERNAME" "$STEAM_PASSWORD" \
-                        +app_update 1493710 validate \
-                        +app_update 1145360 validate \
-                        +quit;
-            };
-
-            #local code="";
-            #local steamcmd_pid=$(steamcmd +login "$STEAM_USERNAME" "$STEAM_PASSWORD" & echo $!);
-#
-            #echo "steamcmd_pid : $steamcmd_pid";
-#
-            #echo "Waiting for Steam Guard code..."
-            #code=$(ListenGmail);
-            #RegisterSteamcmdCode "$code" "$steamcmd_pid";
-#
-            #wait "$steamcmd_pid";
-            StartDownloads;
+            steamcmd +login "$STEAM_USERNAME" "$STEAM_PASSWORD" \
+                +@sSteamCmdForcePlatformType windows \
+                +app_update 1493710 validate \
+                +app_update 1145360 validate \
+                +quit;
         };
 
         echo "Installing Steam...";
