@@ -22,6 +22,10 @@ USER_BINARIES_FOLDER="/usr/local/bin";
 
 VS_CODE_CUSTOM_CONFIG_FOLDER="$HOME/.config/Code/User";
 
+SYSTEM_STEAM_FOLDER="$HOME/.steam/steam";
+SYSTEM_STEAM_CONFIG_FOLDER="$SYSTEM_STEAM_FOLDER/config";
+SYSTEM_STEAM_USER_DATA_FOLDER="$SYSTEM_STEAM_FOLDER/userdata";
+
 SSH_KEYS_FOLDER="$HOME/.ssh";
 
 ###################### UTILS ######################
@@ -149,7 +153,6 @@ function InstallGnomeUIUtilities()
 
 function InstallApps()
 {
-
     function InstallSteam()
     {
         function InstallSoftware()
@@ -186,107 +189,52 @@ function InstallApps()
             nohup steam steam://open/install &> /dev/null & KillSteamOnLoginWindow;
         };
 
+        function FirstLogin()
+        {
+            local user_id="";
+            local login_config_file="loginusers.vdf";
+            local login_config_path="$SYSTEM_STEAM_CONFIG_FOLDER/$login_config_file";
+
+            steamcmd +login "$STEAM_USERNAME" "$STEAM_PASSWORD" +quit;
+            sleep 5;
+
+            user_id=$(find "$SYSTEM_STEAM_USER_DATA_FOLDER/" -maxdepth 1 -type d -exec basename {} \; | grep -E '^[0-9]+$');
+
+            if [ -f "$login_config_path" ];
+            then
+                cp "$login_config_path" "$login_config_path.bak";
+            fi
+
+            echo "{" > "$login_config_path";
+            echo "    \"users\": {" >> "$login_config_path";
+            echo "        \"$user_id\": {" >> "$login_config_path";
+            echo "            \"AccountName\": \"$STEAM_USERNAME\"," >> "$login_config_path";
+            echo "            \"RememberPassword\": \"1\"," >> "$login_config_path";
+            echo "            \"MostRecent\": \"1\"" >> "$login_config_path";
+            echo "        }" >> "$login_config_path";
+            echo "    }" >> "$login_config_path";
+            echo "}" >> "$login_config_path";
+        };
+
         function InstallSteamDownloads()
         {
-            function ApplyProton()
-            {
-                local user_id=$(find ~/.steam/steam/userdata/ -maxdepth 1 -type d -exec basename {} \; | grep -E '^[0-9]+$');
-                local config_file="$HOME/.steam/steam/userdata/$user_id/config/config.vdf";
-
-                if [ ! -d "$(dirname "$config_file")" ];
-                then
-                    echo "Steam config directory not found. Exiting."
-                    exit 1
-                fi
-
-                if [ -f "$config_file" ];
-                then
-                    cp "$config_file" "$config_file.bak"
-                    echo "Backup created: $config_file.bak"
-                fi
-
-                awk 'BEGIN {print "{\n\"CompatToolMapping\": {\n\"1145360\": {\n\"name\": \"proton_90\",\n\"config\": \"\",\n\"priority\": 250\n}\n}\n}"}' > "$config_file"
-
-                echo "Proton compatibility settings applied for Hades (App ID 1145360)."
-                steam --restart   
-            };
-
             steamcmd +login "$STEAM_USERNAME" "$STEAM_PASSWORD" \
                     +app_update 1493710 validate \
                     +quit;
 
             steamcmd +login "$STEAM_USERNAME" "$STEAM_PASSWORD" \
-                    +@sSteamCmdForcePlatformType linux \
+                    +@sSteamCmdForcePlatformType windows \
                     +app_update 1145360 validate \
                     +quit;
-
-            # Apply Proton compatibility settings
-            # ApplyProton;
         };
 
         echo "Installing Steam...";
 
         InstallSoftware       ;
         LaunchFirstUpdate     ;
-        InstallSteamDownloads ;
+        FirstLogin            ;
+        #InstallSteamDownloads ;
     };
-
-
-
-#    function InstallSteam()
-#    {
-#        function InstallSoftware()
-#        {
-#            function AvoidingInteractionPrompt()
-#            {
-#                echo steam steam/license boolean true      | sudo debconf-set-selections ;
-#                echo steam steam/question select "I AGREE" | sudo debconf-set-selections ;
-#            };
-#
-#            sudo add-apt-repository -y multiverse;
-#            sudo apt update;
-#
-#            AvoidingInteractionPrompt;
-#            sudo DEBIAN_FRONTEND=noninteractive apt install -y steam steamcmd;
-#        };
-#
-#        function LaunchFirstUpdate()
-#        {
-#            function KillSteamOnLoginWindow()
-#            {
-#                while true;
-#                do
-#                    if pgrep -f steam-runtime-launcher-service >/dev/null;
-#                    then
-#                        pkill -f steam;
-#                        break;
-#                    fi
-#
-#                    sleep 2;
-#                done
-#            };
-#
-#            nohup steam steam://open/install &> /dev/null & KillSteamOnLoginWindow;
-#        };
-#
-#        function InstallSteamDownloads()
-#        {
-#            steamcmd +login "$STEAM_USERNAME" "$STEAM_PASSWORD" \
-#                    +app_update 1493710 validate \
-#                    +quit;
-#
-#            steamcmd +login "$STEAM_USERNAME" "$STEAM_PASSWORD" \
-#                    +@sSteamCmdForcePlatformType windows \
-#                    +app_update 1145360 validate \
-#                    +quit;
-#        };
-#
-#        echo "Installing Steam...";
-#
-#        InstallSoftware       ;
-#        LaunchFirstUpdate     ;
-#        InstallSteamDownloads ;
-#    };
 
     function InstallDiscord()
     {
@@ -1368,3 +1316,6 @@ then
 
     #gnome-session-quit --logout --no-prompt;
 fi
+
+
+
