@@ -53,8 +53,6 @@ function CheckScriptEnvironmentVariables()
         'GIT_EMAIL'
         'GIT_SSH_KEY_FILE'
         'GIT_SSH_KEY_TITLE'
-        'STEAM_USERNAME'
-        'STEAM_PASSWORD'
     );
 
     if ! ImportEnvironmentVariables "$env_variables_path";
@@ -157,17 +155,9 @@ function InstallApps()
     {
         function InstallSoftware()
         {
-            function AvoidingInteractionPrompt()
-            {
-                echo steam steam/license boolean true      | sudo debconf-set-selections ;
-                echo steam steam/question select "I AGREE" | sudo debconf-set-selections ;
-            };
-
             sudo add-apt-repository -y multiverse;
             sudo apt update;
-
-            AvoidingInteractionPrompt;
-            sudo DEBIAN_FRONTEND=noninteractive apt install -y steam steamcmd;
+            sudo apt install -y steam;
         };
 
         function LaunchFirstUpdate()
@@ -189,77 +179,10 @@ function InstallApps()
             nohup steam steam://open/install &> /dev/null & KillSteamOnLoginWindow;
         };
 
-        function FirstLogin()
-        {
-            local login_config_path="$SYSTEM_STEAM_CONFIG_FOLDER/loginusers.vdf"
-            local userdata_folder="$SYSTEM_STEAM_USER_DATA_FOLDER"
-
-            # Ensure the userdata folder exists
-            if [ ! -d "$userdata_folder" ]; then
-                echo "Creating missing Steam userdata directory..."
-                mkdir -p "$userdata_folder"
-            fi
-
-            # Launch Steam once to initialize files
-            echo "Launching Steam to initialize directories..."
-            nohup steam &>/dev/null &
-            sleep 15  # Give Steam enough time to initialize
-            pkill steam
-
-            # Extract the user ID after Steam initialization
-            local user_id=$(find "$userdata_folder" -maxdepth 1 -type d -exec basename {} \; | grep -E '^[0-9]+$')
-
-            if [ -z "$user_id" ]; then
-                echo "User ID not found. Please check if Steam login is working."
-                return 1
-            fi
-
-            # Backup existing config if present
-            if [ -f "$login_config_path" ]; then
-                cp "$login_config_path" "$login_config_path.bak"
-            fi
-
-            # Write the login configuration
-            echo "Writing Steam login configuration..."
-            echo "{"                                  >  "$login_config_path"
-            echo "    \"users\": {"                   >> "$login_config_path"
-            echo "        \"$user_id\": {"            >> "$login_config_path"
-            echo "            \"AccountName\": \"$STEAM_USERNAME\"," >> "$login_config_path"
-            echo "            \"RememberPassword\": \"1\"," >> "$login_config_path"
-            echo "            \"MostRecent\": \"1\""  >> "$login_config_path"
-            echo "        }"                          >> "$login_config_path"
-            echo "    },"                             >> "$login_config_path"
-            echo "    \"Version\": 1"                 >> "$login_config_path"
-            echo "}"                                  >> "$login_config_path"
-
-            # Set appropriate permissions
-            chmod 600 "$login_config_path"
-
-            # Launch Steam with login credentials
-            echo "Starting Steam with login credentials..."
-            nohup steam -login "$STEAM_USERNAME" "$STEAM_PASSWORD" &>/dev/null &
-            sleep 20
-            pkill steam
-        };
-
-        function InstallSteamDownloads()
-        {
-            steamcmd +login "$STEAM_USERNAME" "$STEAM_PASSWORD" \
-                    +app_update 1493710 validate \
-                    +quit;
-
-            steamcmd +login "$STEAM_USERNAME" "$STEAM_PASSWORD" \
-                    +@sSteamCmdForcePlatformType windows \
-                    +app_update 1145360 validate \
-                    +quit;
-        };
-
         echo "Installing Steam...";
 
-        InstallSoftware       ;
-        LaunchFirstUpdate     ;
-        FirstLogin            ;
-        #InstallSteamDownloads ;
+        InstallSoftware   ;
+        LaunchFirstUpdate ;
     };
 
     function InstallDiscord()
@@ -490,11 +413,11 @@ function InstallApps()
     };
 
     InstallSteam          ;
-    #InstallDiscord        ;
-    #InstallVsCode         ;
-    #InstallVirtualMachine ;
-    #InstallRetroArch      ;
-    #InstallSpotify        ;
+    InstallDiscord        ;
+    InstallVsCode         ;
+    InstallVirtualMachine ;
+    InstallRetroArch      ;
+    InstallSpotify        ;
 };
 
 function InstallCodingEcosystem()
@@ -1332,15 +1255,15 @@ then
 
     sudo apt update ;
 
-    #InstallGnomeUIUtilities  ;
+    InstallGnomeUIUtilities  ;
     InstallApps              ;
-    #InstallCodingEcosystem   ;
-    #ConfigSystemSettings     ;
-    #InstallTerminalUtilities ;
+    InstallCodingEcosystem   ;
+    ConfigSystemSettings     ;
+    InstallTerminalUtilities ;
 
     RemoveIncreaseSudoEffectiveness;
 
-    #gnome-session-quit --logout --no-prompt;
+    gnome-session-quit --logout --no-prompt;
 fi
 
 
