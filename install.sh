@@ -295,8 +295,8 @@ function InstallApps()
             function StartDownloads()
             {
                 steamcmd +login "$STEAM_USERNAME" "$STEAM_PASSWORD" \
-                        +app_update 1493710 validate \ # Proton 9.0
-                        +app_update 1145360 validate \ # Hades
+                        +app_update 1493710 validate \
+                        +app_update 1145360 validate \
                         +quit;
             };
 
